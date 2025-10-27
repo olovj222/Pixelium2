@@ -1,10 +1,37 @@
 package com.gameverse.data.model
 
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+
 /**
- * Representa un producto que se puede vender en la tienda.
+ * NUEVA ENTIDAD PARA USUARIOS.
+ * Almacena tanto los datos de login como los de perfil.
+ * Reemplaza al antiguo UserProfile.
  */
+@Entity(
+    tableName = "users",
+    // Asegura que no haya dos usuarios con el mismo nombre de usuario
+    indices = [Index(value = ["username"], unique = true)]
+)
+data class User(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val username: String,
+    val password: String, // En una app real, guardaríamos un HASH de la contraseña
+    val fullName: String,
+    val email: String,
+    val memberSince: String,
+    val avatarUrl: String
+)
+
+/**
+ * PRODUCTOS - AHORA ES UNA ENTIDAD (TABLA)
+ */
+@Entity(tableName = "products")
 data class Product(
-    val id: Int,
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
     val name: String,
     val details: String,
     val price: Double,
@@ -12,9 +39,23 @@ data class Product(
 )
 
 /**
- * Representa un producto cuando ya ha sido añadido al carrito de compras.
- * Es muy similar a 'Product', pero lo separamos por si en el futuro
- * queremos añadir propiedades específicas del carrito, como la cantidad.
+ * NOTICIAS - AHORA ES UNA ENTIDAD (TABLA)
+ */
+@Entity(tableName = "news")
+data class NewsItem(
+    @PrimaryKey(autoGenerate = true)
+    val id: Int = 0,
+    val title: String,
+    val summary: String,
+    val imageUrl: String
+)
+
+
+// --- Modelos que NO se guardan en la base de datos ---
+
+/**
+ * CartProduct no es una tabla en la base de datos.
+ * Es un modelo que solo existe en la memoria mientras la app se ejecuta.
  */
 data class CartProduct(
     val id: Int,
@@ -23,23 +64,3 @@ data class CartProduct(
     val imageUrl: String
 )
 
-/**
- * Representa un artículo de noticias o un destacado en la pantalla de inicio.
- */
-data class NewsItem(
-    val id: Int,
-    val title: String,
-    val summary: String,
-    val imageUrl: String
-)
-
-/**
- * Representa la información del perfil del usuario.
- */
-data class UserProfile(
-    val username: String,
-    val fullName: String,
-    val email: String,
-    val memberSince: String,
-    val avatarUrl: String
-)
