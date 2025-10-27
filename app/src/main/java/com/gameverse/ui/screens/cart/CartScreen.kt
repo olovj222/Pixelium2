@@ -63,7 +63,7 @@ fun CartScreen(cartViewModel: CartViewModel = viewModel()) {
         Column(modifier = Modifier.fillMaxSize()) {
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(top = 60.dp, start = 16.dp, end = 16.dp, bottom = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 // **CORRECCIÓN 1:** Usamos 'uiState.cartItems' y pasamos cada 'cartProduct' al CartItem.
@@ -79,7 +79,7 @@ fun CartScreen(cartViewModel: CartViewModel = viewModel()) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 60.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
