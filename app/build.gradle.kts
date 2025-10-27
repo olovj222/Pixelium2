@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
     // El plugin de Compose no es necesario aquí si se usa el BOM
 }
 
@@ -92,11 +93,8 @@ dependencies {
     implementation("com.google.accompanist:accompanist-permissions:0.34.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    // --- DEPENDENCIAS ANTIGUAS ELIMINADAS ---
-    // implementation("androidx.lifecycle:lifecycle-livedata-ktx:...")
-    // implementation("androidx.fragment:fragment-ktx:...")
-    // implementation("androidx.navigation:navigation-fragment-ktx:...")
-    // implementation("androidx.navigation:navigation-ui-ktx:...")
-    // implementation("com.github.bumptech.glide:glide:...")
-    // implementation("com.google.android.material:material:...")
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx) // Para soporte de Coroutines y Flow
+    ksp(libs.androidx.room.compiler)
+
 }
