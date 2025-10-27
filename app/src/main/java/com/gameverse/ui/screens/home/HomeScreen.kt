@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -32,7 +33,9 @@ import com.gameverse.ui.components.rememberNeonFlicker
 import com.gameverse.viewmodel.MainViewModel
 
 @Composable
-fun HomeScreen(mainViewModel: MainViewModel = viewModel()) {
+fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
+               onNavigateToProducts: () -> Unit
+               ) {
     val uiState by mainViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
@@ -156,6 +159,51 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel()) {
                 }
             }
 
+            // Tarjeta 3: "Ve nuestros productos en oferta"
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .border(
+                        width = 2.dp,
+                        color = animatedBorderColor,
+                        shape = RoundedCornerShape(12.dp)
+                    ),
+                shape = RoundedCornerShape(12.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "Explora Nuestro Catálogo",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Descubre los últimos lanzamientos y las mejores ofertas en nuestra tienda.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = Color(0xFFFEFCF9),
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Button(
+                        onClick = onNavigateToProducts
+                    ) {
+                        Text("Ver Productos")
+                    }
+                }
+            }
+
             // GIF Mediano ("Mario")
             AnimatedImage(
                 model = "https://i.postimg.cc/Bn7k3Hfj/mario.gif",
@@ -166,7 +214,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel()) {
                     .aspectRatio(1f)
             )
 
-            // Tarjeta 3: "¿Próximas mejoras?"
+            // Tarjeta 4: "¿Próximas mejoras?"
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

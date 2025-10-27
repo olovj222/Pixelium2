@@ -104,7 +104,18 @@ fun MainScreenContainer(
             startDestination = BottomNavItems.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(BottomNavItems.Home.route) { HomeScreen(mainViewModel) }
+            composable(BottomNavItems.Home.route) {
+                HomeScreen(mainViewModel = mainViewModel,
+                    onNavigateToProducts = {
+                    bottomNavController.navigate(BottomNavItems.Products.route) {
+                        popUpTo(bottomNavController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                })
+            }
             composable(BottomNavItems.Products.route) { ProductsScreen(mainViewModel, cartViewModel) }
             composable(BottomNavItems.News.route) { NewsScreen(mainViewModel) }
             composable(BottomNavItems.Profile.route) { ProfileScreen(mainViewModel) }
