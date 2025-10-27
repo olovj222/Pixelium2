@@ -2,79 +2,66 @@ package com.gameverse.ui.screens.profile
 
 import android.Manifest
 import android.annotation.SuppressLint
-import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.PermissionStatus
-import com.google.accompanist.permissions.rememberPermissionState
-import androidx.compose.material3.Button
-import androidx.compose.material3.Divider
-import androidx.compose.ui.platform.LocalContext
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.Priority
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationResult
-// imports ubicacion
-import com.gameverse.viewmodel.UbicacionViewModel
-// imports selector imagenes
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.gameverse.viewmodel.SelectorImagenViewModel
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.DisposableEffect
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.gameverse.ui.components.FullScreenLoader
-import com.gameverse.ui.theme.TextSecondary
 import com.gameverse.viewmodel.MainViewModel
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.Priority
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationResult
+// ViewModel de Ubicación (asumiendo que lo tienes)
+import com.gameverse.viewmodel.UbicacionViewModel
 
-@OptIn(ExperimentalPermissionsApi::class) // 👈 Anotación para la API de permisos
-@SuppressLint("MissingPermission")      // 👈 Anotación para suprimir advertencias de permisos
+@OptIn(ExperimentalPermissionsApi::class)
+@SuppressLint("MissingPermission")
 @Composable
 fun ProfileScreen(
     mainViewModel: MainViewModel = viewModel(),
-    // 1. Obtenemos una instancia del ViewModel de ubicación
     ubicacionViewModel: UbicacionViewModel = viewModel(),
-    selectorImagenViewModel: SelectorImagenViewModel = viewModel()
-
+    // 1. AÑADIMOS EL PARÁMETRO PARA EL LOGOUT
+    onLogout: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
+    // ¡CAMBIO IMPORTANTE! Ahora usamos el 'User' de la DB
     val user = uiState.userProfile
 
-    // 2. Lógica para manejar permisos y obtener la ubicación (igual que antes)
+    // Estado local para la URI de la imagen seleccionada
+    var selectedImageUri by remember { mutableStateOf<Uri?>(null) }
+
+    // --- Lógica de Permisos y Ubicación (sin cambios) ---
     val contexto = LocalContext.current
     val permisoUbicacion = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val tienePermiso = permisoUbicacion.status is PermissionStatus.Granted
 
     if (tienePermiso) {
-        // DisposableEffect se asegura de que la ubicación se pida solo cuando
-        // sea necesario y se detenga cuando la pantalla ya no esté visible.
         DisposableEffect(Unit) {
             val proveedorUbicacion = LocationServices.getFusedLocationProviderClient(contexto)
             val callbackUbicacion = object : LocationCallback() {
                 override fun onLocationResult(resultado: LocationResult) {
                     resultado.lastLocation?.let {
-                        // Cuando obtenemos una ubicación, actualizamos el ViewModel
                         ubicacionViewModel.actualizarUbicacion(it.latitude, it.longitude)
                     }
                 }
@@ -84,68 +71,73 @@ fun ProfileScreen(
 
             proveedorUbicacion.requestLocationUpdates(solicitudUbicacion, callbackUbicacion, null)
 
-            // Se ejecuta cuando el composable se va, para dejar de pedir la ubicación
             onDispose {
                 proveedorUbicacion.removeLocationUpdates(callbackUbicacion)
             }
         }
     }
 
+    // --- Lógica del Selector de Imágenes (sin cambios) ---
     val lanzadorGaleria = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
-        // Cuando el usuario elige una imagen, su URI se guarda en el ViewModel
-        uri?.let {
-            selectorImagenViewModel.asignarUriImagen(it.toString())
-        }
+        selectedImageUri = uri
+        // Aquí podrías guardar la URI en el ViewModel si quisieras persistirla,
+        // o incluso subirla a un servidor y guardar la URL en la base de datos.
     }
 
-
+    // --- UI Principal ---
     if (uiState.isLoading) {
         FullScreenLoader()
     } else if (user != null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(32.dp),
+                .padding(horizontal = 32.dp, vertical = 16.dp) // Añadido padding vertical
+                .verticalScroll(rememberScrollState()), // Permite scroll
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            // Cambiado Arrangement para espaciar los elementos
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // imagen dinámica
+            // Imagen (usa la URI seleccionada o la del perfil)
             AsyncImage(
-                // Si hay una URI en 'selectorImagenViewModel', la usamos.
-                // Si no, usamos la URL original del perfil.
-                model = selectorImagenViewModel.uriImagen ?: user.avatarUrl,
+                model = selectedImageUri ?: user.avatarUrl,
                 contentDescription = "Avatar de ${user.username}",
                 modifier = Modifier
                     .size(150.dp)
                     .clip(CircleShape),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
-            // 4. FOTO: Añadimos un botón para cambiar la imagen
+            // Botón Cambiar Foto
             Button(onClick = { lanzadorGaleria.launch("image/*") }) {
                 Text("Cambiar foto")
             }
-            Spacer(modifier = Modifier.height(24.dp))
+
+            // Nombre Completo
             Text(
                 text = user.fullName,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            // Nombre de Usuario
             Text(
                 text = "@${user.username}",
                 fontSize = 20.sp,
-                color = TextSecondary
+                color = MaterialTheme.colorScheme.onSurfaceVariant // Usar color del tema
             )
 
-            // --- 3. INICIO: Sección de Ubicación integrada en la UI ---
-            Spacer(modifier = Modifier.height(32.dp))
-            Divider() // Un separador visual
-            Spacer(modifier = Modifier.height(32.dp))
+            // 2. AÑADIMOS EL CORREO ELECTRÓNICO
+            Text(
+                text = user.email,
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f) // Un poco más tenue
+            )
+
+            // --- Sección de Ubicación ---
+            Divider(modifier = Modifier.padding(vertical = 16.dp)) // Separador
 
             if (!tienePermiso) {
                 Button(onClick = { permisoUbicacion.launchPermissionRequest() }) {
@@ -153,27 +145,40 @@ fun ProfileScreen(
                 }
             } else {
                 Text(
-                    text = "¡Manten tu ubicación actualizada para que nuestros productos lleguen siempre a tu destino!",
+                    text = "¡Mantén tu ubicación actualizada!",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFFFEFCF9),
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Ubicación actual",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = Color(0xFFFEFCF9),
-                    fontWeight = FontWeight.Bold
+                    text = "Ubicación actual:",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    style = MaterialTheme.typography.titleSmall,
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                // Mostramos la dirección obtenida del ViewModel
                 Text(
                     text = ubicacionViewModel.direccion ?: "Obteniendo...",
                     fontSize = 18.sp,
                     color = MaterialTheme.colorScheme.primary
                 )
             }
-            // --- FIN: Sección de Ubicación ---
+
+            // 3. AÑADIMOS EL BOTÓN DE CERRAR SESIÓN
+            Spacer(modifier = Modifier.weight(1f)) // Empuja el botón hacia abajo
+            Button(
+                onClick = onLogout, // Llama a la función lambda
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error // Color rojo para logout
+                )
+            ) {
+                Text("Cerrar Sesión")
+            }
+        }
+    } else {
+        // Muestra un mensaje si el usuario no se pudo cargar
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+            Text("No se pudo cargar el perfil del usuario.")
         }
     }
 }

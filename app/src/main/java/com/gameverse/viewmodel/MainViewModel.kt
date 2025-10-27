@@ -1,60 +1,63 @@
 package com.gameverse.viewmodel
 
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gameverse.data.model.User
 import com.gameverse.data.repository.AppRepository
 import com.gameverse.ui.state.MainUiState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
+@OptIn(ExperimentalCoroutinesApi::class) // Necesario para flatMapLatest
 class MainViewModel(
-    // 1. AHORA RECIBE EL REPOSITORIO DESDE LA FACTORY
-    private val repository: AppRepository
+    private val repository: AppRepository,
+    // 1. RECIBE LA LAMBDA DESDE LA FACTORY
+    private val getCurrentUserId: () -> Int?
 ) : ViewModel() {
 
-    // El ViewModel ahora es MUCHO más simple gracias a los Flows de Room.
-
-    // 2. OBTENEMOS LOS FLOWS DIRECTAMENTE DEL REPOSITORIO
-    //    Room se encarga de emitir nuevos valores si los datos cambian.
+    // --- Flows base desde el Repositorio (Room) ---
     private val productsFlow: Flow<List<com.gameverse.data.model.Product>> = repository.getProducts()
     private val newsFlow: Flow<List<com.gameverse.data.model.NewsItem>> = repository.getNews()
     private val highlightsFlow: Flow<List<com.gameverse.data.model.NewsItem>> = repository.getHomeHighlights()
 
-    // 3. OBTENEMOS EL PERFIL DEL USUARIO
-    //    (Este es un placeholder. En una app real, guardaríamos el ID del usuario
-    //    que inició sesión y lo usaríamos aquí)
-    private val userProfileFlow: Flow<User?> = flow {
-        // Por ahora, intenta cargar el primer usuario de la base de datos
-        // (El usuario que se registró primero tendrá ID 1)
-        emit(repository.getUserById(1))
-    }
+    // --- Flow dinámico para el Perfil del Usuario ---
+    // Usamos 'flatMapLatest' para reaccionar a cambios en el ID del usuario
+    private val userProfileFlow: Flow<User?> = snapshotFlow { getCurrentUserId() } // Convierte la lambda en un Flow
+        .flatMapLatest { userId ->
+            if (userId != null) {
+                // Si hay un ID, crea un Flow para buscar ese usuario
+                flow { emit(repository.getUserById(userId)) }
+            } else {
+                // Si no hay ID (logout), emite null inmediatamente
+                flowOf(null)
+            }
+        }
 
-    // 4. COMBINAMOS TODOS LOS FLOWS EN UN ÚNICO ESTADO PARA LA UI
-    //    'combine' toma los últimos valores emitidos por cada Flow
-    //    y nos permite crear un 'MainUiState' actualizado.
+    // --- Combina todos los Flows en el Estado Final para la UI ---
     val uiState: StateFlow<MainUiState> = combine(
         productsFlow,
         newsFlow,
         highlightsFlow,
         userProfileFlow
     ) { products, news, highlights, user ->
-        // Creamos el estado combinado
+        // Crea el MainUiState combinado
         MainUiState(
             products = products,
             news = news,
             homeHighlights = highlights,
-            userProfile = user, // <-- Usa el User de la DB
-            isLoading = false // Ya no necesitamos manejar 'isLoading' manualmente aquí
+            userProfile = user, // El usuario correcto obtenido por ID
+            isLoading = false // Ya no manejamos isLoading manualmente aquí
         )
     }.stateIn(
-        scope = viewModelScope, // El scope del ViewModel
-        started = SharingStarted.WhileSubscribed(5000), // Empieza a colectar cuando la UI es visible
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000L),
         initialValue = MainUiState(isLoading = true) // Estado inicial mientras cargan los Flows
     )
 
-    // La función de logout sigue igual
+    // Función de logout (sigue siendo responsabilidad de MainActivity/AppNavigation)
     fun logout() {
-        // Lógica para cerrar sesión (ej. borrar el ID de usuario guardado)
+        // Podrías añadir lógica aquí si necesitas limpiar algo específico del MainViewModel
     }
 }
 

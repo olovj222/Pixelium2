@@ -12,6 +12,7 @@ data class LoginUiState(
     val isLoading: Boolean = false,
     val loginSuccess: Boolean = false,
     val registrationSuccess: Boolean = false, // <-- Propiedad añadida para el registro
+    val loggedInUserId: Int? = null,
     val error: String? = null
 )
 

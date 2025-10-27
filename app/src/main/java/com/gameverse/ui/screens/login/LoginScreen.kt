@@ -19,31 +19,41 @@ import com.gameverse.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
+    // onLoginSuccess ya no es estrictamente necesario para navegar,
+    // pero lo mantenemos por si quieres hacer algo más al lograr el login.
     onLoginSuccess: () -> Unit,
-    // 1. AÑADIMOS EL PARÁMETRO para la navegación a Registro
     onNavigateToRegister: () -> Unit
 ) {
+    // Observa el estado del ViewModel.
     val uiState by loginViewModel.uiState.collectAsState()
+
+    // Estados locales para los campos de texto.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Este LaunchedEffect ahora solo llama a la lambda onLoginSuccess.
+    // La navegación real ocurre en MainActivity basada en uiState.loginSuccess.
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
-            onLoginSuccess()
+            onLoginSuccess() // Puedes usar esto para limpiar campos, mostrar un mensaje, etc.
         }
     }
 
+    // Usamos Box para alinear el logo arriba y el formulario en el centro.
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 32.dp)
     ) {
+
+        // Logo alineado arriba y centrado.
         LogoImage(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 80.dp)
         )
 
+        // Formulario (campos y botón) centrado.
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -62,6 +72,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
+            // Muestra mensaje de error si existe.
             uiState.error?.let { errorMessage ->
                 Text(
                     text = errorMessage,
@@ -70,25 +81,27 @@ fun LoginScreen(
                 )
             }
 
+            // Botón de Iniciar Sesión.
             NeonButton(
                 onClick = { loginViewModel.login(username, password) },
                 text = "Iniciar Sesión",
                 enabled = !uiState.isLoading
             )
 
-            Spacer(modifier = Modifier.height(24.dp)) // Espacio extra
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // 2. AÑADIMOS EL TEXTO CLICKEABLE PARA REGISTRARSE
+            // Texto clickeable para ir a Registro.
             Text(
                 text = "¿No tienes cuenta? Regístrate aquí",
-                color = MaterialTheme.colorScheme.primary, // Color neón
-                textDecoration = TextDecoration.Underline, // Subrayado
-                modifier = Modifier.clickable(enabled = !uiState.isLoading) { // Habilita el click
-                    onNavigateToRegister() // Llama a la función de navegación
+                color = MaterialTheme.colorScheme.primary,
+                textDecoration = TextDecoration.Underline,
+                modifier = Modifier.clickable(enabled = !uiState.isLoading) {
+                    onNavigateToRegister() // Llama a la función de navegación a Registro.
                 }
             )
         }
 
+        // Loader encima de todo si está cargando.
         if (uiState.isLoading) {
             FullScreenLoader()
         }

@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.gameverse.data.model.User
 import com.gameverse.data.repository.AppRepository
 import com.gameverse.ui.state.LoginUiState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -24,11 +25,18 @@ class LoginViewModel(
     fun login(user: String, pass: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
+            delay(2500L)
             // Llama al repositorio (Room)
             val loginResult: User? = repository.login(user, pass)
             if (loginResult != null) {
-                // Éxito
-                _uiState.update { it.copy(isLoading = false, loginSuccess = true) }
+                // ¡CAMBIO CLAVE! Guardamos el ID del usuario en el estado
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        loginSuccess = true,
+                        loggedInUserId = loginResult.id // <-- GUARDAMOS EL ID
+                    )
+                }
             } else {
                 // Fracaso
                 _uiState.update { it.copy(isLoading = false, error = "Usuario o contraseña incorrectos") }
@@ -37,7 +45,6 @@ class LoginViewModel(
     }
 
     /**
-     * ¡FUNCIÓN DE REGISTRO!
      * Intenta insertar un nuevo usuario en la base de datos.
      */
     fun register(user: String, pass: String, email: String) {
@@ -74,12 +81,20 @@ class LoginViewModel(
     }
 
     /**
-     * ¡FUNCIÓN PARA LIMPIAR EL ESTADO!
      * Resetea 'registrationSuccess' a 'false' después de que la UI
      * haya reaccionado (mostrando el Toast y navegando).
      */
     fun resetRegistrationStatus() {
         _uiState.update { it.copy(registrationSuccess = false) }
+    }
+
+    /**
+     * ¡FUNCIÓN IMPORTANTE PARA LOGOUT!
+     * Resetea el estado del ViewModel a los valores iniciales.
+     * Es crucial llamarla al cerrar sesión desde MainActivity.
+     */
+    fun resetLoginState() {
+        _uiState.value = LoginUiState() // Crea un estado nuevo y limpio (loginSuccess=false, loggedInUserId=null)
     }
 }
 

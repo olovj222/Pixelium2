@@ -8,28 +8,33 @@ import com.gameverse.viewmodel.LoginViewModel
 import com.gameverse.viewmodel.MainViewModel
 
 /**
- * Esta es una "constructora" personalizada para nuestros ViewModels.
- * Sabe cómo crear un LoginViewModel y un MainViewModel porque le pasamos
- * el Repositorio que necesitan.
+ * Constructora actualizada. Ahora también recibe una función lambda
+ * para obtener el ID del usuario actualmente logueado.
  */
 class GameverseViewModelFactory(
-    private val repository: AppRepository
+    private val repository: AppRepository,
+    // Lambda que devuelve el ID del usuario actual (o null si no hay nadie logueado)
+    private val getCurrentUserId: () -> Int?
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        // Si se pide un LoginViewModel, lo crea pasándole el repositorio.
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return LoginViewModel(repository) as T
         }
+        // Si se pide un MainViewModel, lo crea pasándole el repositorio Y la lambda.
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainViewModel(repository) as T
+            return MainViewModel(repository, getCurrentUserId) as T // <-- Pasa la lambda
         }
-        // CartViewModel no necesita el repositorio (por ahora)
+        // Si se pide un CartViewModel, lo crea (no necesita nada extra por ahora).
         if (modelClass.isAssignableFrom(CartViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return CartViewModel() as T
         }
-        throw IllegalArgumentException("Unknown ViewModel class")
+        // Si se pide un ViewModel desconocido, lanza una excepción.
+        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
+

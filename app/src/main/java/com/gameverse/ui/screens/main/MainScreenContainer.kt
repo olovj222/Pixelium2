@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -21,6 +22,8 @@ import com.gameverse.ui.screens.home.HomeScreen
 import com.gameverse.ui.screens.news.NewsScreen
 import com.gameverse.ui.screens.products.ProductsScreen
 import com.gameverse.ui.screens.profile.ProfileScreen
+// Importa el UbicacionViewModel si ProfileScreen lo usa directamente
+import com.gameverse.viewmodel.UbicacionViewModel // Asegúrate de tener este ViewModel
 import com.gameverse.viewmodel.CartViewModel
 import com.gameverse.viewmodel.MainViewModel
 
@@ -29,22 +32,17 @@ import com.gameverse.viewmodel.MainViewModel
 fun MainScreenContainer(
     mainViewModel: MainViewModel,
     cartViewModel: CartViewModel,
-    onNavigateToCart: () -> Unit
+    onNavigateToCart: () -> Unit,
+    // Recibe la función de logout desde AppNavigation
+    onLogout: () -> Unit
 ) {
     val bottomNavController = rememberNavController()
-
-    // 1. Observamos el estado del ViewModel principal
     val uiState by mainViewModel.uiState.collectAsState()
-
-    // 2. Obtenemos el nombre de usuario (es 'nullable', puede que aún no haya cargado)
     val username = uiState.userProfile?.username
-
-    // 3. Creamos el texto del título dinámicamente
     val titleText = if (username != null) "¡Hola, $username!" else "Gameverse"
 
-    // ¡CAMBIO CLAVE! Hacemos el Scaffold transparente
     Scaffold(
-        containerColor = Color.Transparent, // <-- HACE EL FONDO DEL SCAFFOLD TRANSPARENTE
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
@@ -54,11 +52,10 @@ fun MainScreenContainer(
                         overflow = TextOverflow.Ellipsis
                     )
                 },
-                // Hacemos la barra superior semitransparente también
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Black.copy(alpha = 0.3f),
-                    titleContentColor = MaterialTheme.colorScheme.primary, // Color de texto neón
-                    actionIconContentColor = MaterialTheme.colorScheme.primary // Color de ícono neón
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                    actionIconContentColor = MaterialTheme.colorScheme.primary
                 ),
                 actions = {
                     IconButton(onClick = onNavigateToCart) {
@@ -68,7 +65,6 @@ fun MainScreenContainer(
             )
         },
         bottomBar = {
-            // Hacemos la barra de navegación semitransparente
             NavigationBar(
                 containerColor = Color.Black.copy(alpha = 0.5f)
             ) {
@@ -99,6 +95,7 @@ fun MainScreenContainer(
             }
         }
     ) { innerPadding ->
+        // NavHost interno para las pantallas de la barra inferior
         NavHost(
             navController = bottomNavController,
             startDestination = BottomNavItems.Home.route,
@@ -118,7 +115,17 @@ fun MainScreenContainer(
             }
             composable(BottomNavItems.Products.route) { ProductsScreen(mainViewModel, cartViewModel) }
             composable(BottomNavItems.News.route) { NewsScreen(mainViewModel) }
-            composable(BottomNavItems.Profile.route) { ProfileScreen(mainViewModel) }
+            // ¡CORRECCIÓN AQUÍ!
+            // Pasamos la función 'onLogout' a la ProfileScreen
+            composable(BottomNavItems.Profile.route) {
+                // Obtén el UbicacionViewModel aquí si ProfileScreen lo necesita
+                val ubicacionViewModel: UbicacionViewModel = viewModel()
+                ProfileScreen(
+                    mainViewModel = mainViewModel,
+                    ubicacionViewModel = ubicacionViewModel, // Pasa el UbicacionViewModel
+                    onLogout = onLogout // <-- Pasamos la función
+                )
+            }
         }
     }
 }
