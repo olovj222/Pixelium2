@@ -1,13 +1,14 @@
 package com.gameverse.ui.screens.login
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.gameverse.ui.components.FullScreenLoader
 import com.gameverse.ui.components.LogoImage
@@ -18,44 +19,33 @@ import com.gameverse.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
-    onLoginSuccess: () -> Unit
+    onLoginSuccess: () -> Unit,
+    // 1. AÑADIMOS EL PARÁMETRO para la navegación a Registro
+    onNavigateToRegister: () -> Unit
 ) {
-    // 1. Observa el estado del ViewModel.
     val uiState by loginViewModel.uiState.collectAsState()
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
 
-    // 2. Estados locales para guardar el contenido de los campos de texto.
-    var username by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    // 3. Efecto para navegar cuando el login es exitoso.
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
             onLoginSuccess()
         }
     }
 
-    // 4. ¡CAMBIO CLAVE! Usamos un Box en lugar de una Column.
-    //    Un Box nos permite alinear elementos de forma independiente.
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 32.dp) // Mantenemos el padding horizontal
+            .padding(horizontal = 32.dp)
     ) {
-
-        // 5. EL LOGO:
-        //    Lo alineamos en la parte superior central (TopCenter)
-        //    y le damos un padding para separarlo del borde.
         LogoImage(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 80.dp) // <-- ¡Mueve el logo hacia arriba!
+                .padding(top = 80.dp)
         )
 
-        // 6. LOS CAMPOS DE TEXTO Y EL BOTÓN:
-        //    Los agrupamos en su propia Column
-        //    y alineamos esa Column en el centro (Center).
         Column(
-            modifier = Modifier.align(Alignment.Center), // <-- ¡Centra este bloque!
+            modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             NeonTextField(
@@ -72,7 +62,6 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Muestra el mensaje de error si existe
             uiState.error?.let { errorMessage ->
                 Text(
                     text = errorMessage,
@@ -84,12 +73,22 @@ fun LoginScreen(
             NeonButton(
                 onClick = { loginViewModel.login(username, password) },
                 text = "Iniciar Sesión",
-                enabled = !uiState.isLoading // El botón se deshabilita mientras carga
+                enabled = !uiState.isLoading
+            )
+
+            Spacer(modifier = Modifier.height(24.dp)) // Espacio extra
+
+            // 2. AÑADIMOS EL TEXTO CLICKEABLE PARA REGISTRARSE
+            Text(
+                text = "¿No tienes cuenta? Regístrate aquí",
+                color = MaterialTheme.colorScheme.primary, // Color neón
+                textDecoration = TextDecoration.Underline, // Subrayado
+                modifier = Modifier.clickable(enabled = !uiState.isLoading) { // Habilita el click
+                    onNavigateToRegister() // Llama a la función de navegación
+                }
             )
         }
 
-        // 7. EL LOADER:
-        //    Se muestra encima de todo cuando está cargando.
         if (uiState.isLoading) {
             FullScreenLoader()
         }

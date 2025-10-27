@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.BlendMode
@@ -17,16 +16,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.gameverse.ui.navigation.AppNavigation
 import com.gameverse.ui.theme.GameverseTheme
+import com.gameverse.viewmodel.factory.GameverseViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        // 1. Obtén la instancia de tu Application personalizada
+        val application = application as GameverseApplication
+
+        // 2. Obtén la instancia única del Repositorio desde la Application
+        val repository = application.repository
+
+        // 3. Crea la fábrica de ViewModels usando el Repositorio
+        val viewModelFactory = GameverseViewModelFactory(repository)
+
         setContent {
             GameverseTheme {
-                // 1. Usamos un Box para apilar el fondo y el contenido
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // 2. Imagen de Fondo (la misma que usaste en HomeScreen)
+                    // Mantiene la imagen de fondo global
                     Image(
                         painter = painterResource(id = R.drawable.home_background),
                         contentDescription = "Imagen de fondo global",
@@ -34,14 +43,12 @@ class MainActivity : ComponentActivity() {
                         contentScale = ContentScale.Crop,
                         colorFilter = ColorFilter.tint(Color.Black.copy(alpha = 0.6f), blendMode = BlendMode.Darken)
                     )
-
-                    // 3. El Surface AHORA DEBE SER TRANSPARENTE
                     Surface(
                         modifier = Modifier.fillMaxSize(),
-                        color = Color.Transparent // <-- ¡CAMBIO CLAVE!
+                        color = Color.Transparent // Surface transparente para ver el fondo
                     ) {
-                        // 4. La navegación se dibuja encima del fondo
-                        AppNavigation()
+                        // 4. Pasa la fábrica de ViewModels a la Navegación
+                        AppNavigation(viewModelFactory = viewModelFactory)
                     }
                 }
             }

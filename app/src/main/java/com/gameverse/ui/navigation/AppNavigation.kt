@@ -8,54 +8,65 @@ import androidx.navigation.compose.rememberNavController
 import com.gameverse.ui.screens.cart.CartScreen
 import com.gameverse.ui.screens.login.LoginScreen
 import com.gameverse.ui.screens.main.MainScreenContainer
+// Importa la nueva pantalla de registro
+import com.gameverse.ui.screens.register.RegisterScreen
 import com.gameverse.viewmodel.CartViewModel
 import com.gameverse.viewmodel.LoginViewModel
 import com.gameverse.viewmodel.MainViewModel
+import com.gameverse.viewmodel.factory.GameverseViewModelFactory
 
 @Composable
-fun AppNavigation() {
-    // 1. Crea el controlador de navegación que gestionará el cambio entre pantallas.
+fun AppNavigation(viewModelFactory: GameverseViewModelFactory) { // <-- 1. Recibe la Fábrica
     val navController = rememberNavController()
 
-    // 2. Crea instancias de los ViewModels que se compartirán entre múltiples pantallas.
-    val loginViewModel: LoginViewModel = viewModel()
-    val mainViewModel: MainViewModel = viewModel()
-    val cartViewModel: CartViewModel = viewModel()
+    // 2. Usa la Fábrica para crear los ViewModels
+    //    Compose se asegura de que sea la misma instancia en toda la app
+    val loginViewModel: LoginViewModel = viewModel(factory = viewModelFactory)
+    val mainViewModel: MainViewModel = viewModel(factory = viewModelFactory)
+    val cartViewModel: CartViewModel = viewModel(factory = viewModelFactory) // Aunque no use repo, lo creamos con la factory
 
-    // 3. 'NavHost' es el contenedor que mostrará la pantalla actual según la ruta.
     NavHost(navController = navController, startDestination = "login") {
 
-        // 4. Define la pantalla para la ruta "login".
+        // --- Pantalla de Login ---
         composable("login") {
             LoginScreen(
                 loginViewModel = loginViewModel,
                 onLoginSuccess = {
-                    // Acción a ejecutar cuando el login sea exitoso.
-                    // Navega a la pantalla "main" y limpia la pila de navegación
-                    // para que el usuario no pueda volver atrás al login con el botón de retroceso.
+                    // Navega a main y limpia la pila para no volver al login
                     navController.navigate("main") {
-                        popUpTo("login") {
-                            inclusive = true
-                        }
+                        popUpTo("login") { inclusive = true }
                     }
+                },
+                // Navega a la pantalla de registro
+                onNavigateToRegister = {
+                    navController.navigate("register")
                 }
             )
         }
 
-        // 5. Define la pantalla para la ruta "main".
-        //    Esta pantalla es el contenedor principal que tiene la barra de navegación inferior.
+        // --- ¡NUEVA Pantalla de Registro! ---
+        composable("register") {
+            RegisterScreen(
+                loginViewModel = loginViewModel, // Reutiliza el LoginViewModel para la lógica de registro
+                onRegistrationSuccess = {
+                    // Después de registrarse con éxito, vuelve a la pantalla de login
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        // --- Pantalla Principal (Contenedor con NavBar) ---
         composable("main") {
             MainScreenContainer(
                 mainViewModel = mainViewModel,
                 cartViewModel = cartViewModel,
                 onNavigateToCart = {
-                    // Acción para navegar desde cualquier parte de la app al carrito.
                     navController.navigate("cart")
                 }
             )
         }
 
-        // 6. Define la pantalla para la ruta "cart".
+        // --- Pantalla del Carrito ---
         composable("cart") {
             CartScreen(cartViewModel = cartViewModel)
         }
