@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -23,8 +24,8 @@ fun LoginScreen(
     val uiState by loginViewModel.uiState.collectAsState()
 
     // 2. Estados locales para guardar el contenido de los campos de texto.
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
 
     // 3. Efecto para navegar cuando el login es exitoso.
     LaunchedEffect(uiState.loginSuccess) {
