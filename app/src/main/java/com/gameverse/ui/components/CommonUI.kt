@@ -206,7 +206,7 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
                         color = MaterialTheme.colorScheme.primary
                     )
                     Button(onClick = { onAddToCart(product) }) {
-                        Text("Comprar")
+                        Text("Agregar al carrito")
                     }
                 }
             }

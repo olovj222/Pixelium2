@@ -65,7 +65,8 @@ fun AppNavigation(
                 )
             }
             composable("cart") {
-                CartScreen(cartViewModel = cartViewModel)
+                CartScreen(cartViewModel = cartViewModel,
+                    onGoBack = { mainNavController.popBackStack()})
             }
             // Aquí podrías añadir más destinos si tu app crece (ej: "detalle_producto/{id}")
         }
