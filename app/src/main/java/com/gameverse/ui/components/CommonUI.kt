@@ -1,10 +1,10 @@
+@file:Suppress("DEPRECATION")
+
 package com.gameverse.ui.components
 
 import com.gameverse.R
 import android.os.Build
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -14,7 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -23,7 +23,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -84,7 +83,7 @@ fun AnimatedImage(
 @Composable
 fun rememberNeonFlicker(): Color {
     val baseColor = MaterialTheme.colorScheme.primary
-    var targetAlpha by remember { mutableStateOf(1f) }
+    var targetAlpha by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(Unit) {
         while (true) {
