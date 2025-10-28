@@ -232,7 +232,7 @@ fun NewsCard(newsItem: NewsItem) {
                 modifier = Modifier
                     .size(120.dp)
                     .clip(RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp)),
-                contentScale = ContentScale.Crop
+                contentScale = ContentScale.Fit
             )
             Column(Modifier.padding(16.dp)) {
                 Text(newsItem.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color(0xFFFEFCF9))
