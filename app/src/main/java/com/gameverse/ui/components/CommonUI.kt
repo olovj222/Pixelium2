@@ -237,7 +237,7 @@ fun NewsCard(newsItem: NewsItem) {
             Column(Modifier.padding(16.dp)) {
                 Text(newsItem.title, style = MaterialTheme.typography.titleMedium, maxLines = 2, overflow = TextOverflow.Ellipsis, color = Color(0xFFFEFCF9))
                 Spacer(Modifier.height(4.dp))
-                Text(newsItem.summary, style = MaterialTheme.typography.bodySmall, maxLines = 3, overflow = TextOverflow.Ellipsis, color = Color(0xFFFEFCF9))
+                Text(newsItem.summary, style = MaterialTheme.typography.bodySmall, maxLines = 5, overflow = TextOverflow.Ellipsis, color = Color(0xFFFEFCF9))
             }
         }
     }
