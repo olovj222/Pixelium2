@@ -55,9 +55,6 @@ class MainViewModel(
         initialValue = MainUiState(isLoading = true) // Estado inicial mientras cargan los Flows
     )
 
-    // Función de logout (sigue siendo responsabilidad de MainActivity/AppNavigation)
-    fun logout() {
-        // Podrías añadir lógica aquí si necesitas limpiar algo específico del MainViewModel
-    }
+
 }
 
