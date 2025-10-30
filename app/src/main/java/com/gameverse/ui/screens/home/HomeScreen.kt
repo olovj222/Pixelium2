@@ -39,7 +39,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
     val uiState by mainViewModel.uiState.collectAsState()
     val context = LocalContext.current
 
-    // Definimos el ImageLoader una sola vez para reutilizarlo
+    // aca definimos el ImageLoader una sola vez para reutilizarlo
     val imageLoader = remember {
         ImageLoader.Builder(context)
             .components {
@@ -63,10 +63,10 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // 1. Logo animado
+            // Logo animado
             LogoImage(modifier = Modifier.height(150.dp))
 
-            // 2. GIF Ancho ("Voltereta")
+            // GIF Ancho ("Voltereta")
             AnimatedImage(
                 model = "https://i.postimg.cc/52KTJLWz/todos-voltereta.gif",
                 contentDescription = "Animación Voltereta",
@@ -124,7 +124,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
             )
 
 
-            // Tarjeta 2: "¿Qué encontraré aquí?"
+            // Tarjeta 2 Qué encontraré aquí?
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,7 +159,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                 }
             }
 
-            // Tarjeta 3: "Ve nuestros productos en oferta"
+            // Tarjeta 3:  Ve nuestros productos en oferta
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -204,7 +204,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                 }
             }
 
-            // GIF Mediano ("Mario")
+            // GIF Mediano (Mario)
             AnimatedImage(
                 model = "https://i.postimg.cc/Bn7k3Hfj/mario.gif",
                 contentDescription = "Animación Mario",
@@ -214,7 +214,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                     .aspectRatio(1f)
             )
 
-            // Tarjeta 4: "¿Próximas mejoras?"
+            // Tarjeta 4: Próximas mejoras
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

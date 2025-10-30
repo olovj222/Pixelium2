@@ -17,28 +17,28 @@ import com.gameverse.viewmodel.factory.GameverseViewModelFactory
 @Composable
 fun AppNavigation(
     viewModelFactory: GameverseViewModelFactory,
-    // 1. Recibe el estado de autenticación y la acción de logout
+
     isAuthenticated: Boolean,
     onLogout: () -> Unit
 ) {
-    // Los ViewModels se crean aquí, pero solo se usan donde se necesiten
+    // acá se crean los viewmodels
     val loginViewModel: LoginViewModel = viewModel(factory = viewModelFactory)
     val mainViewModel: MainViewModel = viewModel(factory = viewModelFactory)
     val cartViewModel: CartViewModel = viewModel(factory = viewModelFactory)
 
-    // Necesitamos un NavController para la navegación DENTRO de la app principal (Main -> Cart)
+
     val mainNavController = rememberNavController()
 
-    // --- CAMBIO PRINCIPAL: Decisión basada en el estado ---
+
     if (!isAuthenticated) {
-        // --- ESTADO NO AUTENTICADO ---
+        // en caso de no estar autenticado
         // Mostramos un NavHost solo para Login y Registro
         val authNavController = rememberNavController()
         NavHost(navController = authNavController, startDestination = "login") {
             composable("login") {
                 LoginScreen(
                     loginViewModel = loginViewModel,
-                    // onLoginSuccess ya no navega, solo actualiza el estado en MainActivity
+
                     onLoginSuccess = { /* MainActivity se encarga vía LaunchedEffect */ },
                     onNavigateToRegister = { authNavController.navigate("register") }
                 )
@@ -46,21 +46,21 @@ fun AppNavigation(
             composable("register") {
                 RegisterScreen(
                     loginViewModel = loginViewModel,
-                    onRegistrationSuccess = { authNavController.popBackStack() } // Vuelve al login
+                    onRegistrationSuccess = { authNavController.popBackStack() } // acá de devuelve a login
                 )
             }
         }
     } else {
-        // --- ESTADO AUTENTICADO ---
-        // Mostramos el NavHost principal de la app
+        // en caso de estar autenticado
+        // se muestra el navhost de la apk
         NavHost(navController = mainNavController, startDestination = "main") {
             composable("main") {
                 MainScreenContainer(
                     mainViewModel = mainViewModel,
                     cartViewModel = cartViewModel,
-                    // La navegación al carrito ahora usa mainNavController
+
                     onNavigateToCart = { mainNavController.navigate("cart") },
-                    // Pasamos la acción de logout recibida desde MainActivity
+
                     onLogout = onLogout
                 )
             }
@@ -68,7 +68,6 @@ fun AppNavigation(
                 CartScreen(cartViewModel = cartViewModel,
                     onGoBack = { mainNavController.popBackStack()})
             }
-            // Aquí podrías añadir más destinos si tu app crece (ej: "detalle_producto/{id}")
         }
     }
 }

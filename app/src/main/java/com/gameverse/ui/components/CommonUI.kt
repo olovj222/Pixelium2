@@ -58,7 +58,7 @@ fun LogoImage(modifier: Modifier = Modifier) {
         imageLoader = imageLoader,
         contentDescription = "Logo de Gameverse",
         modifier = modifier
-            .size(200.dp) // Tamaño agrandado
+            .size(200.dp)
             .clip(RoundedCornerShape(16.dp))
     )
 }

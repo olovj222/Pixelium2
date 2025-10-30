@@ -19,27 +19,25 @@ import com.gameverse.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
-    // onLoginSuccess ya no es estrictamente necesario para navegar,
-    // pero lo mantenemos por si quieres hacer algo más al lograr el login.
+
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
-    // Observa el estado del ViewModel.
+    // aca se ve el estado del ViewModel
     val uiState by loginViewModel.uiState.collectAsState()
 
     // Estados locales para los campos de texto.
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Este LaunchedEffect ahora solo llama a la lambda onLoginSuccess.
-    // La navegación real ocurre en MainActivity basada en uiState.loginSuccess.
+
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
-            onLoginSuccess() // Puedes usar esto para limpiar campos, mostrar un mensaje, etc.
+            onLoginSuccess()
         }
     }
 
-    // Usamos Box para alinear el logo arriba y el formulario en el centro.
+    // aca se alinea el logo arriba y el formulario en el centro de la app
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -101,7 +99,6 @@ fun LoginScreen(
             )
         }
 
-        // Loader encima de todo si está cargando.
         if (uiState.isLoading) {
             FullScreenLoader()
         }

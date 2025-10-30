@@ -18,7 +18,5 @@ sealed class BottomNavItems(val route: String, val title: String, val icon: Imag
     data object News : BottomNavItems("news", "Noticias", Icons.Default.Info)
     data object Profile : BottomNavItems("profile", "Perfil", Icons.Default.AccountCircle)
 
-    // El carrito no es parte de la barra de navegación inferior,
-    // pero lo definimos aquí como una ruta principal para mantener la consistencia.
     data object Cart : BottomNavItems("cart", "Carrito", Icons.Default.ShoppingCart)
 }

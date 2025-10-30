@@ -46,29 +46,27 @@ fun CartScreen(
     val context = LocalContext.current
     val clpFormatter = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")) }
 
-    // --- ¡CAMBIO CLAVE! ---
-    // Estado local para recordar si acabamos de hacer un checkout.
+    //acá se recuerda el estado despues del chekout (simular pago)
     var showPostCheckoutMessage by remember { mutableStateOf(false) }
 
-    // Efecto para mostrar el Toast y actualizar el estado local
+
     LaunchedEffect(uiState.paymentSuccess) {
         if (uiState.paymentSuccess) {
             Toast.makeText(context, "¡Gracias por tu compra!", Toast.LENGTH_LONG).show()
-            showPostCheckoutMessage = true // Marcamos que acabamos de pagar
-            cartViewModel.resetPaymentStatus() // Reseteamos el estado del ViewModel
+            showPostCheckoutMessage = true
+            cartViewModel.resetPaymentStatus()
         }
     }
 
-    // --- LÓGICA DE VISUALIZACIÓN ---
+
     if (uiState.cartItems.isEmpty()) {
-        // --- Carrito Vacío ---
+        // Carrito Vacío
         Box(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             contentAlignment = Alignment.Center
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // --- ¡CAMBIO CLAVE! ---
-                // Ahora usamos el estado local 'showPostCheckoutMessage'
+
                 if (showPostCheckoutMessage) {
                     // Si el carrito está vacío DESPUÉS de un pago
                     Text(
@@ -97,9 +95,8 @@ fun CartScreen(
             }
         }
     } else {
-        // --- Carrito con Items (sin cambios aquí) ---
-        // Asegúrate de resetear 'showPostCheckoutMessage' si el usuario vuelve
-        // a añadir items después de pagar pero antes de irse.
+        // Carrito con Items (sin cambios aquí)
+
         LaunchedEffect(uiState.cartItems.isNotEmpty()) {
             if(uiState.cartItems.isNotEmpty()) {
                 showPostCheckoutMessage = false
@@ -121,7 +118,7 @@ fun CartScreen(
                 }
             }
 
-            // --- Sección del Total y Botón de Pago (sin cambios) ---
+            // Sección del Total y Botón de Pago (sin cambios)
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -155,7 +152,7 @@ fun CartScreen(
     }
 }
 
-// --- CartItem Composable (sin cambios) ---
+
 @Composable
 private fun CartItem(
     product: CartProduct,
