@@ -157,7 +157,7 @@ fun NeonButton(
 
 @Composable
 fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
-    // 1. Prepara el formateador de CLP
+    // Para dar formato en peso chileno
     val clpFormatter = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")) }
 
     Card(
@@ -166,8 +166,7 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        // 2. ¡CORRECCIÓN AQUÍ!
-        // Hacemos la tarjeta semitransparente para que se vea el fondo global
+
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         )
@@ -199,7 +198,7 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        // 3. Aplicamos el formato CLP
+                        // acá se aplica el fomrato en pesos chilenos
                         text = clpFormatter.format(product.price),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.primary
@@ -220,7 +219,7 @@ fun NewsCard(newsItem: NewsItem) {
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        // Hacemos la tarjeta de noticias semitransparente también
+        // tarjeta de noticias transparente
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
         )
@@ -243,11 +242,10 @@ fun NewsCard(newsItem: NewsItem) {
     }
 }
 
-// Dentro de tu archivo CommonUI.kt
 
 @Composable
 fun FullScreenLoader() {
-    // 1. Necesitamos el contexto y el ImageLoader para animaciones
+
     val context = LocalContext.current
     val imageLoader = remember {
         ImageLoader.Builder(context)
@@ -264,17 +262,16 @@ fun FullScreenLoader() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            // Mantenemos el fondo oscuro semitransparente
+
             .background(MaterialTheme.colorScheme.background.copy(alpha = 0.8f)),
         contentAlignment = Alignment.Center
     ) {
-        // 2. Reemplazamos CircularProgressIndicator por AsyncImage
         AsyncImage(
-            // 3. Apunta a tu nuevo archivo en la carpeta drawable
-            model = R.drawable.pikachu, // <-- Cambia esto por el nombre de tu archivo
+            // gif de Pikachu corriendo (cargando)
+            model = R.drawable.pikachu,
             imageLoader = imageLoader,
             contentDescription = "Cargando...",
-            modifier = Modifier.size(220.dp) // Ajusta el tamaño de tu GIF/WEBP
+            modifier = Modifier.size(220.dp) // acá ajustamos el tamaño
         )
     }
 }
