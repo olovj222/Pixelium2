@@ -16,20 +16,19 @@ class MainViewModel(
     private val getCurrentUserId: () -> Int?
 ) : ViewModel() {
 
-    // --- Flows base desde el Repositorio (Room) ---
+
     private val productsFlow: Flow<List<com.gameverse.data.model.Product>> = repository.getProducts()
     private val newsFlow: Flow<List<com.gameverse.data.model.NewsItem>> = repository.getNews()
     private val highlightsFlow: Flow<List<com.gameverse.data.model.NewsItem>> = repository.getHomeHighlights()
 
-    // --- Flow dinámico para el Perfil del Usuario ---
-    // Usamos 'flatMapLatest' para reaccionar a cambios en el ID del usuario
-    private val userProfileFlow: Flow<User?> = snapshotFlow { getCurrentUserId() } // Convierte la lambda en un Flow
+
+    private val userProfileFlow: Flow<User?> = snapshotFlow { getCurrentUserId() }
         .flatMapLatest { userId ->
             if (userId != null) {
-                // Si hay un ID, crea un Flow para buscar ese usuario
+
                 flow { emit(repository.getUserById(userId)) }
             } else {
-                // Si no hay ID (logout), emite null inmediatamente
+
                 flowOf(null)
             }
         }
@@ -46,13 +45,13 @@ class MainViewModel(
             products = products,
             news = news,
             homeHighlights = highlights,
-            userProfile = user, // El usuario correcto obtenido por ID
-            isLoading = false // Ya no manejamos isLoading manualmente aquí
+            userProfile = user,
+            isLoading = false
         )
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000L),
-        initialValue = MainUiState(isLoading = true) // Estado inicial mientras cargan los Flows
+        initialValue = MainUiState(isLoading = true)
     )
 
 
