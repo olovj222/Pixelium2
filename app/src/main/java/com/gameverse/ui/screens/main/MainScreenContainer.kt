@@ -115,15 +115,15 @@ fun MainScreenContainer(
             }
             composable(BottomNavItems.Products.route) { ProductsScreen(mainViewModel, cartViewModel) }
             composable(BottomNavItems.News.route) { NewsScreen(mainViewModel) }
-            // ¡CORRECCIÓN AQUÍ!
-            // Pasamos la función 'onLogout' a la ProfileScreen
+
+            // acá pasamos la función 'onLogout' a la ProfileScreen
             composable(BottomNavItems.Profile.route) {
-                // Obtén el UbicacionViewModel aquí si ProfileScreen lo necesita
+
                 val ubicacionViewModel: UbicacionViewModel = viewModel()
                 ProfileScreen(
                     mainViewModel = mainViewModel,
-                    ubicacionViewModel = ubicacionViewModel, // Pasa el UbicacionViewModel
-                    onLogout = onLogout // <-- Pasamos la función
+                    ubicacionViewModel = ubicacionViewModel,
+                    onLogout = onLogout
                 )
             }
         }

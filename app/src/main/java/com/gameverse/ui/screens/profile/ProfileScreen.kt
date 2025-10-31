@@ -42,17 +42,17 @@ import com.gameverse.viewmodel.UbicacionViewModel
 fun ProfileScreen(
     mainViewModel: MainViewModel = viewModel(),
     ubicacionViewModel: UbicacionViewModel = viewModel(),
-    // 1. AÑADIMOS EL PARÁMETRO PARA EL LOGOUT
+
     onLogout: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
-    // ¡CAMBIO IMPORTANTE! Ahora usamos el 'User' de la DB
+
     val user = uiState.userProfile
 
-    // Estado local para la URI de la imagen seleccionada
+
     var selectedImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
-    // --- Lógica de Permisos y Ubicación (sin cambios) ---
+
     val contexto = LocalContext.current
     val permisoUbicacion = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val tienePermiso = permisoUbicacion.status is PermissionStatus.Granted
@@ -78,29 +78,29 @@ fun ProfileScreen(
         }
     }
 
-    // --- Lógica del Selector de Imágenes (sin cambios) ---
+
     val lanzadorGaleria = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         selectedImageUri = uri
-        // Aquí podrías guardar la URI en el ViewModel si quisieras persistirla,
-        // o incluso subirla a un servidor y guardar la URL en la base de datos.
+
+
     }
 
-    // --- UI Principal ---
+
     if (uiState.isLoading) {
         FullScreenLoader()
     } else if (user != null) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 32.dp, vertical = 16.dp) // Añadido padding vertical
-                .verticalScroll(rememberScrollState()), // Permite scroll
+                .padding(horizontal = 32.dp, vertical = 16.dp)
+                .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            // Cambiado Arrangement para espaciar los elementos
+
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Imagen (usa la URI seleccionada o la del perfil)
+
             AsyncImage(
                 model = selectedImageUri ?: user.avatarUrl,
                 contentDescription = "Avatar de ${user.username}",
@@ -127,18 +127,18 @@ fun ProfileScreen(
             Text(
                 text = "@${user.username}",
                 fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant // Usar color del tema
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
 
-            // 2. AÑADIMOS EL CORREO ELECTRÓNICO
+            // correo de usuario
             Text(
                 text = user.email,
                 fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f) // Un poco más tenue
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
             )
 
-            // --- Sección de Ubicación ---
-            Divider(modifier = Modifier.padding(vertical = 16.dp)) // Separador
+            // ubicacion del dispositivo
+            Divider(modifier = Modifier.padding(vertical = 16.dp))
 
             if (!tienePermiso) {
                 Button(onClick = { permisoUbicacion.launchPermissionRequest() }) {
@@ -164,20 +164,20 @@ fun ProfileScreen(
                 )
             }
 
-            // 3. AÑADIMOS EL BOTÓN DE CERRAR SESIÓN
-            Spacer(modifier = Modifier.weight(1f)) // Empuja el botón hacia abajo
+            // boton cerrar sesion
+            Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = onLogout, // Llama a la función lambda
+                onClick = onLogout,
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error // Color rojo para logout
+                    containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
                 Text("Cerrar Sesión")
             }
         }
     } else {
-        // Muestra un mensaje si el usuario no se pudo cargar
+
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
             Text("No se pudo cargar el perfil del usuario.")
         }
