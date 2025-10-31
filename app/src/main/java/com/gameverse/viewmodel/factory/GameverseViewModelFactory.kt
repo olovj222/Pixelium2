@@ -7,10 +7,7 @@ import com.gameverse.viewmodel.CartViewModel
 import com.gameverse.viewmodel.LoginViewModel
 import com.gameverse.viewmodel.MainViewModel
 
-/**
- * Constructora actualizada. Ahora también recibe una función lambda
- * para obtener el ID del usuario actualmente logueado.
- */
+
 class GameverseViewModelFactory(
     private val repository: AppRepository,
     // Lambda que devuelve el ID del usuario actual (o null si no hay nadie logueado)

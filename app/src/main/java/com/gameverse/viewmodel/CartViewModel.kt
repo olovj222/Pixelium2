@@ -8,10 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-/**
- * ViewModel que gestiona toda la lógica del carrito de compras.
- * Este código está diseñado para funcionar con el CartScreen proporcionado.
- */
+
 class CartViewModel : ViewModel() {
 
     // Estado interno mutable. Solo el ViewModel puede modificarlo.
@@ -19,10 +16,8 @@ class CartViewModel : ViewModel() {
     // Estado público inmutable para que la UI lo observe.
     val uiState = _uiState.asStateFlow()
 
-    /**
-     * Añade un producto al carrito.
-     * Es llamado desde la pantalla de Productos.
-     */
+    // aca se añade un producto al carrito que es llamado desde Productos
+
     fun addToCart(product: Product) {
         // Convierte un Product en un CartProduct
         val cartProduct = CartProduct(
@@ -43,10 +38,8 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Elimina un producto del carrito usando su ID.
-     * Esta es una de las funciones que tu CartScreen necesita.
-     */
+    //elimina un producto del carrito usando el ID
+
     fun removeFromCart(productId: Int) {
         _uiState.update { currentState ->
             // Crea una nueva lista filtrando el producto a eliminar
@@ -58,29 +51,24 @@ class CartViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Simula el proceso de pago.
-     * Limpia el carrito y establece 'paymentSuccess' en true para que la UI pueda reaccionar.
-     */
+    //aca se simula el proceso dee pago y se limpia el carrito
+
     fun checkout() {
         // Resetea el estado a uno nuevo, vacío, pero con paymentSuccess = true
         _uiState.value = CartUiState(paymentSuccess = true)
     }
 
-    /**
-     * Resetea el estado de 'paymentSuccess' a 'false'.
-     * Tu CartScreen llama a esta función después de mostrar el Toast
-     * para evitar que se muestre de nuevo si la pantalla se recompone.
-     */
+    //acá se reseta el estado del paymente a false
+
+
     fun resetPaymentStatus() {
         _uiState.update { currentState ->
             currentState.copy(paymentSuccess = false)
         }
     }
 
-    /**
-     * Función privada para recalcular el total del carrito cada vez que cambia.
-     */
+    //funcion para calcular el total del carrito
+
     private fun recalculateTotal(items: List<CartProduct>): Double {
         return items.sumOf { it.price }
     }

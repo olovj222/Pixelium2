@@ -19,9 +19,8 @@ class LoginViewModel(
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState = _uiState.asStateFlow()
 
-    /**
-     * Intenta iniciar sesión consultando la base de datos.
-     */
+
+    //aca parte el intento de inicio de sesion con la base de datos
     fun login(user: String, pass: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -29,7 +28,7 @@ class LoginViewModel(
             // Llama al repositorio (Room)
             val loginResult: User? = repository.login(user, pass)
             if (loginResult != null) {
-                // ¡CAMBIO CLAVE! Guardamos el ID del usuario en el estado
+                // Guardamos el ID del usuario en el estado
                 _uiState.update {
                     it.copy(
                         isLoading = false,
@@ -38,15 +37,14 @@ class LoginViewModel(
                     )
                 }
             } else {
-                // Fracaso
+                // en caso de tener un fracaso
                 _uiState.update { it.copy(isLoading = false, error = "Usuario o contraseña incorrectos") }
             }
         }
     }
 
-    /**
-     * Intenta insertar un nuevo usuario en la base de datos.
-     */
+    // aca intenta de insertar un nuevo usuario a la BD
+
     fun register(user: String, pass: String, email: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -60,41 +58,35 @@ class LoginViewModel(
             // Crea el objeto User para la base de datos
             val newUser = User(
                 username = user,
-                password = pass, // ¡IMPORTANTE! En una app real, hashear la contraseña antes de guardarla.
+                password = pass,
                 email = email,
-                fullName = user, // Nombre completo por defecto
-                memberSince = Date().toString(), // Fecha actual
-                avatarUrl = "https://placehold.co/300x300/212121/00BCD4?text=${user.take(2).uppercase()}" // Avatar genérico
+                fullName = user,
+                memberSince = Date().toString(),
+                avatarUrl = "https://placehold.co/300x300/212121/00BCD4?text=${user.take(2).uppercase()}"
             )
 
-            // Llama al repositorio para intentar insertar
+
             val registerResult = repository.registerUser(newUser)
 
             if (registerResult.isSuccess) {
                 // Registro exitoso
                 _uiState.update { it.copy(isLoading = false, registrationSuccess = true) }
             } else {
-                // Error (probablemente el usuario ya existe)
+                // Error
                 _uiState.update { it.copy(isLoading = false, error = registerResult.exceptionOrNull()?.message ?: "Error al registrar") }
             }
         }
     }
 
-    /**
-     * Resetea 'registrationSuccess' a 'false' después de que la UI
-     * haya reaccionado (mostrando el Toast y navegando).
-     */
+
     fun resetRegistrationStatus() {
         _uiState.update { it.copy(registrationSuccess = false) }
     }
 
-    /**
-     * ¡FUNCIÓN IMPORTANTE PARA LOGOUT!
-     * Resetea el estado del ViewModel a los valores iniciales.
-     * Es crucial llamarla al cerrar sesión desde MainActivity.
-     */
+
+    // Crea un estado nuevo y limpio
     fun resetLoginState() {
-        _uiState.value = LoginUiState() // Crea un estado nuevo y limpio (loginSuccess=false, loggedInUserId=null)
+        _uiState.value = LoginUiState()
     }
 }
 

@@ -18,27 +18,27 @@ import com.gameverse.viewmodel.LoginViewModel
 @Composable
 fun RegisterScreen(
     loginViewModel: LoginViewModel,
-    onRegistrationSuccess: () -> Unit // Lambda para volver al Login
+    onRegistrationSuccess: () -> Unit
 ) {
-    // 1. Observa el estado del LoginViewModel
+
     val uiState by loginViewModel.uiState.collectAsState()
 
-    // 2. Estados locales para los campos de texto
+
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") } // <-- Nuevo campo
     val context = LocalContext.current
 
-    // 3. Efecto para manejar el éxito del registro
+
     LaunchedEffect(uiState.registrationSuccess) {
         if (uiState.registrationSuccess) {
             Toast.makeText(context, "¡Registro exitoso! Por favor, inicia sesión.", Toast.LENGTH_LONG).show()
-            loginViewModel.resetRegistrationStatus() // Limpia el estado
-            onRegistrationSuccess() // Llama a la lambda para volver al Login
+            loginViewModel.resetRegistrationStatus()
+            onRegistrationSuccess()
         }
     }
 
-    // Usamos un Box para poder mostrar el Loader encima
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -74,7 +74,7 @@ fun RegisterScreen(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Muestra el mensaje de error si existe
+
             uiState.error?.let { errorMessage ->
                 Text(
                     text = errorMessage,
@@ -90,7 +90,7 @@ fun RegisterScreen(
             )
         }
 
-        // Muestra el loader si está cargando
+
         if (uiState.isLoading) {
             FullScreenLoader()
         }

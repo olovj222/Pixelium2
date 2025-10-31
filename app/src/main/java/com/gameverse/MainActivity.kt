@@ -38,7 +38,7 @@ class MainActivity : ComponentActivity() {
                 )
                 val loginState by loginViewModel.uiState.collectAsState()
 
-                // --- ESTADO DE AUTENTICACIÓN Y USER ID ---
+
                 // 'currentUserId' guarda el ID del usuario logueado
                 var currentUserId by remember { mutableStateOf<Int?>(null) }
                 // 'isAuthenticated' controla qué NavHost se muestra
@@ -50,13 +50,13 @@ class MainActivity : ComponentActivity() {
                     currentUserId = loginState.loggedInUserId // Actualiza el ID guardado
                 }
 
-                // --- Crea la Factory DENTRO de @Composable ---
+
                 // Se recrea si 'currentUserId' cambia, pasando el ID actualizado
                 val viewModelFactory = remember(currentUserId) {
                     GameverseViewModelFactory(repository) { currentUserId }
                 }
 
-                // --- Acción de Logout ---
+
                 val performLogout = {
                     loginViewModel.resetLoginState() // Resetea el estado del LoginViewModel
                     currentUserId = null // Limpia el ID guardado
@@ -76,7 +76,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = Color.Transparent // Surface transparente
                     ) {
-                        // Pasa la factory, el estado y la acción de logout a AppNavigation
+
                         AppNavigation(
                             viewModelFactory = viewModelFactory,
                             isAuthenticated = isAuthenticated,
