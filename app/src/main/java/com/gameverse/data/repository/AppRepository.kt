@@ -25,14 +25,14 @@ class AppRepository(
     /**
      * Intenta registrar un nuevo usuario.
      * Devuelve un 'Result' para que el ViewModel sepa si funcionó o falló
-     * (ej. si el nombre de usuario ya existe).
+     * (si el nombre de usuario ya existe).
      */
     suspend fun registerUser(user: User): Result<Unit> {
         return try {
             usuarioDAO.insertUser(user)
             Result.success(Unit)
         } catch (e: Exception) {
-            // Esto probablemente sea una 'SQLiteConstraintException' si el username ya existe
+            // Manda un 'SQLiteConstraintException' si el username ya existe
             Result.failure(Exception("El nombre de usuario ya está en uso."))
         }
     }
@@ -52,7 +52,7 @@ class AppRepository(
         return usuarioDAO.getUserById(userId)
     }
 
-    // --- Funciones de Productos y Noticias ---
+    // --- Funciones de Productos y Noticias
 
     /**
      * Obtiene la lista de productos como un Flow.

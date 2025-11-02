@@ -15,12 +15,12 @@ class GameverseViewModelFactory(
 ) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // Si se pide un LoginViewModel, lo crea pasándole el repositorio.
+        // Si se pide un LoginViewModel, lo crea pasandole el repositorio.
         if (modelClass.isAssignableFrom(LoginViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return LoginViewModel(repository) as T
         }
-        // Si se pide un MainViewModel, lo crea pasándole el repositorio Y la lambda.
+        // Si se pide un MainViewModel, lo crea pasandole el repositorio Y la lambda.
         if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return MainViewModel(repository, getCurrentUserId) as T // <-- Pasa la lambda

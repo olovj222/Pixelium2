@@ -18,7 +18,7 @@ data class User(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val username: String,
-    val password: String, // En una app real, guardaríamos un HASH de la contraseña
+    val password: String,
     val fullName: String,
     val email: String,
     val memberSince: String,
@@ -26,7 +26,7 @@ data class User(
 )
 
 /**
- * PRODUCTOS - AHORA ES UNA ENTIDAD (TABLA)
+ * PRODUCTOS - AHORA ES UNA ENTIDAD
  */
 @Entity(tableName = "products")
 data class Product(
@@ -39,7 +39,7 @@ data class Product(
 )
 
 /**
- * NOTICIAS - AHORA ES UNA ENTIDAD (TABLA)
+ * NOTICIAS - AHORA ES UNA ENTIDAD
  */
 @Entity(tableName = "news")
 data class NewsItem(

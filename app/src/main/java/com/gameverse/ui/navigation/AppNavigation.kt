@@ -39,7 +39,7 @@ fun AppNavigation(
                 LoginScreen(
                     loginViewModel = loginViewModel,
 
-                    onLoginSuccess = { /* MainActivity se encarga vía LaunchedEffect */ },
+                    onLoginSuccess = {  },
                     onNavigateToRegister = { authNavController.navigate("register") }
                 )
             }

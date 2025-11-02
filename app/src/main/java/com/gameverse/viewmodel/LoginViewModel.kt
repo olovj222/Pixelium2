@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 
 class LoginViewModel(
-    private val repository: AppRepository // Recibe el Repositorio conectado a Room
+    private val repository: AppRepository // recibe el repositorio conectado a Room
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(LoginUiState())
@@ -33,7 +33,7 @@ class LoginViewModel(
                     it.copy(
                         isLoading = false,
                         loginSuccess = true,
-                        loggedInUserId = loginResult.id // <-- GUARDAMOS EL ID
+                        loggedInUserId = loginResult.id // GUARDAMOS EL ID
                     )
                 }
             } else {
@@ -49,7 +49,7 @@ class LoginViewModel(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            // Validaciones básicas
+            // Validaciones basicas
             if (user.length < 4 || pass.length < 6 || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
                 _uiState.update { it.copy(isLoading = false, error = "Verifica los datos (Usuario mín 4, Pass mín 6, Email válido).") }
                 return@launch
@@ -72,7 +72,6 @@ class LoginViewModel(
                 // Registro exitoso
                 _uiState.update { it.copy(isLoading = false, registrationSuccess = true) }
             } else {
-                // Error
                 _uiState.update { it.copy(isLoading = false, error = registerResult.exceptionOrNull()?.message ?: "Error al registrar") }
             }
         }

@@ -119,12 +119,12 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                 contentDescription = "Animación Nube",
                 imageLoader = imageLoader,
                 modifier = Modifier
-                    .fillMaxWidth(0.25f) // Achicado al 25%
+                    .fillMaxWidth(0.25f)
                     .aspectRatio(1f)
             )
 
 
-            // Tarjeta 2 Qué encontraré aquí?
+            // Tarjeta 2
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -159,7 +159,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                 }
             }
 
-            // Tarjeta 3:  Ve nuestros productos en oferta
+            // Tarjeta 3 productos en oferta
             Card(
                 modifier = Modifier
                     .fillMaxWidth()

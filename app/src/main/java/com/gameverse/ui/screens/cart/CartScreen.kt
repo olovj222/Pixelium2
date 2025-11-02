@@ -95,7 +95,7 @@ fun CartScreen(
             }
         }
     } else {
-        // Carrito con Items (sin cambios aquí)
+        // Carrito con Items
 
         LaunchedEffect(uiState.cartItems.isNotEmpty()) {
             if(uiState.cartItems.isNotEmpty()) {
@@ -118,7 +118,7 @@ fun CartScreen(
                 }
             }
 
-            // Sección del Total y Botón de Pago (sin cambios)
+            // Sección del Total y Botón de Pago
             Column(
                 modifier = Modifier
                     .fillMaxWidth()

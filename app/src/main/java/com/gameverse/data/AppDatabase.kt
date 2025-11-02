@@ -17,25 +17,25 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [User::class, Product::class, NewsItem::class], // 1. Lista de todas las tablas
-    version = 1, // 2. Si cambias la estructura de las tablas, debes subir este número
-    exportSchema = false // No exportar el esquema
+    version = 1,
+    exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
-    // 3. Funciones abstractas para cada DAO (¡con tus nombres!)
+    // Funciones abstractas para cada DAO
     abstract fun usuarioDAO(): UserDao
     abstract fun productoDAO(): ProductDao
     abstract fun newsDAO(): NewsDao
 
-    // 4. Companion object para crear el Singleton de la base de datos
+
     companion object {
         // @Volatile asegura que el valor de INSTANCE esté siempre actualizado
         @Volatile
         private var INSTANCE: AppDatabase? = null
 
         fun getDatabase(context: Context): AppDatabase {
-            // Si INSTANCE no es nulo, lo retorna.
-            // Si es nulo, crea la base de datos en un bloque 'synchronized'.
+            // Si INSTANCE no es nulo, lo retorna
+            // Si es nulo, crea la base de datos en un bloque 'synchronized'
             return INSTANCE ?: synchronized(this) {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
@@ -58,7 +58,7 @@ abstract class AppDatabase : RoomDatabase() {
 private class DatabaseCallback(private val context: Context) : RoomDatabase.Callback() {
     override fun onCreate(db: SupportSQLiteDatabase) {
         super.onCreate(db)
-        // Usamos una corutina para insertar los datos en un hilo de fondo
+        // Corutina para insertar los datos en un hilo de fondo
         CoroutineScope(Dispatchers.IO).launch {
             val database = AppDatabase.getDatabase(context)
             prePopulateProducts(database.productoDAO())

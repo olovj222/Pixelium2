@@ -51,7 +51,7 @@ fun LoginScreen(
                 .padding(top = 80.dp)
         )
 
-        // Formulario (campos y botón) centrado.
+        // Formulario centrado.
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -79,7 +79,7 @@ fun LoginScreen(
                 )
             }
 
-            // Botón de Iniciar Sesión.
+            // Boton de iniciar sesión
             NeonButton(
                 onClick = { loginViewModel.login(username, password) },
                 text = "Iniciar Sesión",
@@ -88,7 +88,7 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Texto clickeable para ir a Registro.
+            // Texto clickeable de Registro
             Text(
                 text = "¿No tienes cuenta? Regístrate aquí",
                 color = MaterialTheme.colorScheme.primary,

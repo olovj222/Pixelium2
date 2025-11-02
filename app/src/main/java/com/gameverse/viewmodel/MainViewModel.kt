@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.*
 @OptIn(ExperimentalCoroutinesApi::class) // Necesario para flatMapLatest
 class MainViewModel(
     private val repository: AppRepository,
-    // 1. RECIBE LA LAMBDA DESDE LA FACTORY
+    // RECIBE LA LAMBDA DESDE LA FACTORY
     private val getCurrentUserId: () -> Int?
 ) : ViewModel() {
 
@@ -33,7 +33,7 @@ class MainViewModel(
             }
         }
 
-    // --- Combina todos los Flows en el Estado Final para la UI ---
+    // --- Combina todos los flows en el Estado Final para la UI
     val uiState: StateFlow<MainUiState> = combine(
         productsFlow,
         newsFlow,
