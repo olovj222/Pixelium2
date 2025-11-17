@@ -23,6 +23,7 @@ import com.gameverse.viewmodel.MainViewModel
 import com.gameverse.viewmodel.UbicacionViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.flowOf
 
@@ -59,11 +60,25 @@ open class FakeRepository : AppRepository(
 // --- ViewModels Falsos ---
 
 class FakeLoginViewModel : LoginViewModel(FakeRepository()) {
-    override val _uiState = MutableStateFlow(LoginUiState())
-    override val uiState = _uiState.asStateFlow()
-    override fun login(user: String, pass: String) {}
-    override fun register(user: String, pass: String, email: String) {}
-    fun setState(newState: LoginUiState) { _uiState.value = newState }
+    // IMPORTANTE: Usamos un StateFlow mutable que podemos controlar
+    private val _fakeUiState = MutableStateFlow(LoginUiState())
+
+    // Sobreescribimos el uiState del ViewModel original
+    override val uiState: StateFlow<LoginUiState> = _fakeUiState.asStateFlow()
+
+    // Métodos override que no hacen nada en el fake
+    override fun login(user: String, pass: String) {
+        // No hacer nada en tests
+    }
+
+    override fun register(user: String, pass: String, email: String) {
+        // No hacer nada en tests
+    }
+
+    // Función pública para establecer el estado desde tests
+    fun setState(newState: LoginUiState) {
+        _fakeUiState.value = newState
+    }
 }
 
 class FakeMainViewModel : MainViewModel(

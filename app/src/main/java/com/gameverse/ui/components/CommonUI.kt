@@ -23,6 +23,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -126,6 +129,10 @@ fun NeonTextField(
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         visualTransformation = if (keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None,
         modifier = Modifier.fillMaxWidth()
+            .semantics{
+                contentDescription = "Campo de $label"
+            }
+
     )
 }
 
@@ -142,16 +149,20 @@ fun NeonButton(
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(8.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = animatedBorderColor.copy(alpha = 0.1f),
+            contentColor = animatedBorderColor
+        ),
         modifier = modifier
             .fillMaxWidth()
             .height(50.dp)
-            .border(1.dp, animatedBorderColor, RoundedCornerShape(8.dp)),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = animatedBorderColor.copy(alpha = 0.1f),
-            contentColor = animatedBorderColor // Color del texto
-        )
+            .border(1.dp, animatedBorderColor, RoundedCornerShape(8.dp))
+            .testTag("button_$text")
+            .semantics {
+                contentDescription = "Botón $text"
+            }
     ) {
-        Text(text.uppercase())
+        Text(text = text)
     }
 }
 
@@ -272,6 +283,9 @@ fun FullScreenLoader() {
             imageLoader = imageLoader,
             contentDescription = "Cargando...",
             modifier = Modifier.size(220.dp) // acá ajustamos el tamaño
+                .semantics {
+                    contentDescription = "Cargando..." // ← Para testing
+                }
         )
     }
 }

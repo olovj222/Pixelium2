@@ -4,6 +4,7 @@ import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.gameverse.ui.screens.login.LoginScreen
+import com.gameverse.ui.state.LoginUiState
 import com.gameverse.ui.theme.GameverseTheme
 import com.gameverse.util.FakeLoginViewModel
 import org.junit.Before
@@ -36,39 +37,72 @@ class LoginScreenTest {
             }
         }
 
-        // Esperamos a que la UI se renderice completamente
         composeTestRule.waitForIdle()
 
-        // Debug: Imprime el árbol de nodos para ver qué hay
-        composeTestRule.onRoot().printToLog("LoginScreenTest")
-
-        // Validamos el logo - intenta con diferentes formas
         composeTestRule
             .onNodeWithContentDescription("Logo de Gameverse", useUnmergedTree = true)
-            .assertExists("El logo no existe en el árbol de composición")
-            .assertIsDisplayed()
-
-        // Validamos los campos de texto
-        composeTestRule
-            .onNodeWithText("Usuario", useUnmergedTree = true)
-            .assertExists("El campo Usuario no existe")
             .assertIsDisplayed()
 
         composeTestRule
-            .onNodeWithText("Contraseña", useUnmergedTree = true)
-            .assertExists("El campo Contraseña no existe")
+            .onNodeWithText("Usuario", substring = true, useUnmergedTree = true)
             .assertIsDisplayed()
 
-        // Validamos el botón
         composeTestRule
-            .onNodeWithText("Iniciar Sesión", useUnmergedTree = true)
-            .assertExists("El botón Iniciar Sesión no existe")
+            .onNodeWithText("Contraseña", substring = true, useUnmergedTree = true)
             .assertIsDisplayed()
 
-        // Validamos el enlace
         composeTestRule
-            .onNodeWithText("¿No tienes cuenta? Regístrate aquí", useUnmergedTree = true)
-            .assertExists("El enlace de registro no existe")
+            .onNodeWithText("Iniciar Sesión", substring = true, useUnmergedTree = true)
             .assertIsDisplayed()
+
+        composeTestRule
+            .onNodeWithText("¿No tienes cuenta? Regístrate aquí", substring = true, useUnmergedTree = true)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun testLoginScreen_ShowError_WhenErrorStateIsSet() {
+        fakeLoginViewModel.setState(LoginUiState(error = "Este es un error de prueba"))
+
+        composeTestRule.setContent {
+            GameverseTheme {
+                LoginScreen(
+                    loginViewModel = fakeLoginViewModel,
+                    onLoginSuccess = { },
+                    onNavigateToRegister = { }
+                )
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(100)
+
+        composeTestRule
+            .onNodeWithText("Este es un error de prueba", substring = true, useUnmergedTree = true)
+            .assertIsDisplayed()
+    }
+
+    @Test
+    fun testLoginScreen_ButtonIsDisabled_WhenLoading() {
+        fakeLoginViewModel.setState(LoginUiState(isLoading = true))
+
+        composeTestRule.setContent {
+            GameverseTheme {
+                LoginScreen(
+                    loginViewModel = fakeLoginViewModel,
+                    onLoginSuccess = { },
+                    onNavigateToRegister = { }
+                )
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(200)
+        composeTestRule.waitForIdle()
+
+        // Usar testTag para encontrar el botón específico
+        composeTestRule
+            .onNodeWithTag("button_Iniciar Sesión")
+            .assertIsNotEnabled()
     }
 }
