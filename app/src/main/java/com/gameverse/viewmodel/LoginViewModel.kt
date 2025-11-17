@@ -12,16 +12,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Date
 
-class LoginViewModel(
+open class LoginViewModel(
     private val repository: AppRepository // recibe el repositorio conectado a Room
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(LoginUiState())
-    val uiState = _uiState.asStateFlow()
+    protected open val _uiState = MutableStateFlow(LoginUiState())
+    open val uiState = _uiState.asStateFlow()
 
 
     //aca parte el intento de inicio de sesion con la base de datos
-    fun login(user: String, pass: String) {
+    open fun login(user: String, pass: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             delay(2500L)
@@ -45,7 +45,7 @@ class LoginViewModel(
 
     // aca intenta de insertar un nuevo usuario a la BD
 
-    fun register(user: String, pass: String, email: String) {
+    open fun register(user: String, pass: String, email: String) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
@@ -78,13 +78,13 @@ class LoginViewModel(
     }
 
 
-    fun resetRegistrationStatus() {
+    open fun resetRegistrationStatus() {
         _uiState.update { it.copy(registrationSuccess = false) }
     }
 
 
     // Crea un estado nuevo y limpio
-    fun resetLoginState() {
+    open fun resetLoginState() {
         _uiState.value = LoginUiState()
     }
 }

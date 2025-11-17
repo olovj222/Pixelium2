@@ -9,16 +9,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
 
-class CartViewModel : ViewModel() {
+open class CartViewModel : ViewModel() {
 
     // Estado interno mutable. Solo el ViewModel puede modificarlo.
-    private val _uiState = MutableStateFlow(CartUiState())
+    protected open val _uiState = MutableStateFlow(CartUiState())
     // Estado público inmutable para que la UI lo observe.
-    val uiState = _uiState.asStateFlow()
+    open val uiState = _uiState.asStateFlow()
 
     // aca se añade un producto al carrito que es llamado desde Productos
 
-    fun addToCart(product: Product) {
+    open fun addToCart(product: Product) {
         // Convierte un Product en un CartProduct
         val cartProduct = CartProduct(
             id = product.id,
@@ -40,7 +40,7 @@ class CartViewModel : ViewModel() {
 
     //elimina un producto del carrito usando el ID
 
-    fun removeFromCart(productId: Int) {
+    open fun removeFromCart(productId: Int) {
         _uiState.update { currentState ->
             // Crea una nueva lista filtrando el producto a eliminar
             val updatedItems = currentState.cartItems.filterNot { it.id == productId }
@@ -53,7 +53,7 @@ class CartViewModel : ViewModel() {
 
     //aca se simula el proceso dee pago y se limpia el carrito
 
-    fun checkout() {
+    open fun checkout() {
         // Resetea el estado a uno nuevo, vacío, pero con paymentSuccess = true
         _uiState.value = CartUiState(paymentSuccess = true)
     }
@@ -61,7 +61,7 @@ class CartViewModel : ViewModel() {
     //acá se reseta el estado del paymente a false
 
 
-    fun resetPaymentStatus() {
+    open fun resetPaymentStatus() {
         _uiState.update { currentState ->
             currentState.copy(paymentSuccess = false)
         }

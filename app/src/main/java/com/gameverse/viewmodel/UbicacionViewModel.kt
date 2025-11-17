@@ -10,7 +10,7 @@ import kotlinx.coroutines.Dispatchers // ¡Importante!
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class UbicacionViewModel(application: Application) : AndroidViewModel(application) {
+open class UbicacionViewModel(application: Application) : AndroidViewModel(application) {
 
     var latitud by mutableStateOf<Double?>(null)
         private set
@@ -18,10 +18,10 @@ class UbicacionViewModel(application: Application) : AndroidViewModel(applicatio
         private set
 
     // Agregamos un nuevo estado para guardar la dirección
-    var direccion by mutableStateOf<String?>(null)
-        private set
+    open var direccion by mutableStateOf<String?>(null)
+        protected set
 
-    fun actualizarUbicacion(lat: Double, lon: Double) {
+    open fun actualizarUbicacion(lat: Double, lon: Double) {
         latitud = lat
         longitud = lon
 

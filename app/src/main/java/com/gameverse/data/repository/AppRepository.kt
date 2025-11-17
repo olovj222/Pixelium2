@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.Flow
  * los DAOs de la base de datos como parámetros.
  * Es la única fuente de verdad para los ViewModels.
  */
-class AppRepository(
+open class AppRepository(
     private val usuarioDAO: UserDao,
     private val productoDAO: ProductDao,
     private val newsDAO: NewsDao
@@ -27,7 +27,7 @@ class AppRepository(
      * Devuelve un 'Result' para que el ViewModel sepa si funcionó o falló
      * (si el nombre de usuario ya existe).
      */
-    suspend fun registerUser(user: User): Result<Unit> {
+    open suspend fun registerUser(user: User): Result<Unit> {
         return try {
             usuarioDAO.insertUser(user)
             Result.success(Unit)
@@ -41,7 +41,7 @@ class AppRepository(
      * Intenta iniciar sesión.
      * Devuelve el objeto 'User' completo si tiene éxito, o 'null' si las credenciales son incorrectas.
      */
-    suspend fun login(user: String, pass: String): User? {
+    open suspend fun login(user: String, pass: String): User? {
         return usuarioDAO.login(user, pass)
     }
 
