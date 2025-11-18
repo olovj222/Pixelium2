@@ -60,24 +60,16 @@ open class FakeRepository : AppRepository(
 // --- ViewModels Falsos ---
 
 class FakeLoginViewModel : LoginViewModel(FakeRepository()) {
-    // IMPORTANTE: Usamos un StateFlow mutable que podemos controlar
-    private val _fakeUiState = MutableStateFlow(LoginUiState())
+    // Sobrescribimos el '_uiState' protegido original para tener control total
+    public override val _uiState = MutableStateFlow(LoginUiState())
+    override val uiState = _uiState.asStateFlow()
 
-    // Sobreescribimos el uiState del ViewModel original
-    override val uiState: StateFlow<LoginUiState> = _fakeUiState.asStateFlow()
-
-    // Métodos override que no hacen nada en el fake
-    override fun login(user: String, pass: String) {
-        // No hacer nada en tests
-    }
-
-    override fun register(user: String, pass: String, email: String) {
-        // No hacer nada en tests
-    }
+    override fun login(user: String, pass: String) {}
+    override fun register(user: String, pass: String, email: String) {}
 
     // Función pública para establecer el estado desde tests
     fun setState(newState: LoginUiState) {
-        _fakeUiState.value = newState
+        _uiState.value = newState
     }
 }
 
@@ -85,34 +77,36 @@ class FakeMainViewModel : MainViewModel(
     repository = FakeRepository(),
     getCurrentUserId = { null }
 ) {
+    // Aquí sí creamos uno nuevo porque MainViewModel no tiene _uiState protegido expuesto igual
     private val _fakeUiState = MutableStateFlow(MainUiState(isLoading = true))
     override val uiState = _fakeUiState.asStateFlow()
+
     fun setState(newState: MainUiState) { _fakeUiState.value = newState }
 }
 
 class FakeCartViewModel : CartViewModel() {
-    override val _uiState = MutableStateFlow(CartUiState())
+    // Sobrescribimos el _uiState protegido original
+    public override val _uiState = MutableStateFlow(CartUiState())
     override val uiState = _uiState.asStateFlow()
+
     override fun addToCart(product: Product) {}
     override fun removeFromCart(productId: Int) {}
     override fun checkout() {}
     override fun resetPaymentStatus() {}
+
     fun setState(newState: CartUiState) { _uiState.value = newState }
 }
 
 /**
- * ¡FAKE DE UBICACIÓN CORREGIDO!
+ * FAKE DE UBICACIÓN
  */
 class FakeUbicacionViewModel : UbicacionViewModel(
-    // ¡CAMBIO CLAVE! Le pasamos el contexto de Application
-    // que nos provee el framework de pruebas de AndroidX.
     application = ApplicationProvider.getApplicationContext() as Application
 ) {
-    // Sobrescribimos la propiedad 'open'
+    // Sobrescribimos la propiedad 'open' manteniendo el 'protected set'
     override var direccion: String? by mutableStateOf("Dirección de Prueba Falsa")
         protected set
 
-    // Sobrescribimos la función 'open'
     override fun actualizarUbicacion(lat: Double, lon: Double) {
         direccion = "Ubicación Falsa: $lat, $lon"
     }

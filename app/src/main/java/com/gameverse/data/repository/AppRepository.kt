@@ -48,7 +48,7 @@ open class AppRepository(
     /**
      * Obtiene los datos de un usuario por su ID.
      */
-    suspend fun getUserById(userId: Int): User? {
+    open suspend fun getUserById(userId: Int): User? {
         return usuarioDAO.getUserById(userId)
     }
 
@@ -58,21 +58,21 @@ open class AppRepository(
      * Obtiene la lista de productos como un Flow.
      * La UI se actualizará automáticamente si los datos cambian.
      */
-    fun getProducts(): Flow<List<Product>> {
+    open fun getProducts(): Flow<List<Product>> {
         return productoDAO.getProducts()
     }
 
     /**
      * Obtiene la lista de noticias como un Flow.
      */
-    fun getNews(): Flow<List<NewsItem>> {
+    open fun getNews(): Flow<List<NewsItem>> {
         return newsDAO.getNews()
     }
 
     /**
      * Obtiene los destacados (que son las mismas noticias).
      */
-    fun getHomeHighlights(): Flow<List<NewsItem>> {
+    open fun getHomeHighlights(): Flow<List<NewsItem>> {
         return newsDAO.getNews()
     }
 }

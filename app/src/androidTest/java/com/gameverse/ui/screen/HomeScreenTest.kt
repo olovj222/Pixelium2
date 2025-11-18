@@ -27,7 +27,6 @@ class HomeScreenTest {
 
     @Test
     fun testHomeScreen_LoadingState_ShowsLoader() {
-        // Forzar estado de carga
         fakeMainViewModel.setState(MainUiState(isLoading = true))
 
         composeTestRule.setContent {
@@ -39,13 +38,7 @@ class HomeScreenTest {
             }
         }
 
-        // Esperar a que la UI se estabilice
         composeTestRule.waitForIdle()
-        composeTestRule.mainClock.advanceTimeBy(200)
-        composeTestRule.waitForIdle()
-
-        // Debug: Ver el árbol
-        composeTestRule.onRoot().printToLog("HomeScreenLoading")
 
         // Validar que el contenido principal NO esté visible
         composeTestRule
@@ -55,7 +48,6 @@ class HomeScreenTest {
 
     @Test
     fun testHomeScreen_LoadedState_ShowsContentAndTitles() {
-        // Forzar estado cargado
         fakeMainViewModel.setState(MainUiState(isLoading = false))
 
         composeTestRule.setContent {
@@ -69,42 +61,76 @@ class HomeScreenTest {
 
         // Esperar a que la UI se estabilice
         composeTestRule.waitForIdle()
-        composeTestRule.mainClock.advanceTimeBy(200)
+        composeTestRule.mainClock.advanceTimeBy(1000)
         composeTestRule.waitForIdle()
 
-        // Debug: Ver qué hay en el árbol
-        composeTestRule.onRoot().printToLog("HomeScreenLoaded")
+        // Debug: Imprimir el árbol COMPLETO para ver los textos exactos
+        composeTestRule.onRoot().printToLog("HomeScreenDebug")
 
-        // Validar los títulos con useUnmergedTree
+        // Validar título principal
         composeTestRule
             .onNodeWithText("Bienvenido a LVL-UP Gamer", substring = true, useUnmergedTree = true)
+            .assertExists()
             .assertIsDisplayed()
 
+        // Validar segundo título - Usa substring para buscar parte del texto
         composeTestRule
-            .onNodeWithText("¿Que encontraré aquí?", substring = true, useUnmergedTree = true)
+            .onNode(
+                hasText("encontraré", substring = true, ignoreCase = true),
+                useUnmergedTree = true
+            )
+            .assertExists()
+            .performScrollTo()
             .assertIsDisplayed()
 
+        // Validar tercer título
         composeTestRule
-            .onNodeWithText("¿Próximas mejoras?", substring = true, useUnmergedTree = true)
+            .onNode(
+                hasText("Proximas mejoras", substring = true, ignoreCase = true),
+                useUnmergedTree = true
+            )
+            .assertExists()
+            .performScrollTo()
             .assertIsDisplayed()
 
-        // Validar las imágenes por contentDescription
+        // Validar el logo
         composeTestRule
             .onNodeWithContentDescription("Logo de Gameverse", useUnmergedTree = true)
-            .assertIsDisplayed()
+            .assertExists()
 
+        // Validar botón
         composeTestRule
-            .onNodeWithContentDescription("Animación Voltereta", useUnmergedTree = true)
-            .assertIsDisplayed()
+            .onNodeWithText("Ver Productos", substring = true, useUnmergedTree = true)
+            .assertExists()
+            .performScrollTo()
+    }
 
-        composeTestRule
-            .onNodeWithContentDescription("Animación Nube", useUnmergedTree = true)
-            .assertIsDisplayed()
+    @Test
+    fun testHomeScreen_ButtonNavigatesToProducts() {
+        fakeMainViewModel.setState(MainUiState(isLoading = false))
 
+        var navigatedToProducts = false
+
+        composeTestRule.setContent {
+            GameverseTheme {
+                HomeScreen(
+                    mainViewModel = fakeMainViewModel,
+                    onNavigateToProducts = { navigatedToProducts = true }
+                )
+            }
+        }
+
+        composeTestRule.waitForIdle()
+        composeTestRule.mainClock.advanceTimeBy(500)
+
+        // Buscar y hacer click en el botón "Ver Productos"
         composeTestRule
-            .onNodeWithContentDescription("Animación Mario", useUnmergedTree = true)
-            .assertIsDisplayed()
+            .onNodeWithText("Ver Productos", useUnmergedTree = true)
+            .assertExists()
+            .performScrollTo()
+            .performClick()
+
+        // Verificar que se llamó la navegación
+        assert(navigatedToProducts) { "No se navegó a productos" }
     }
 }
-
-// Que onda

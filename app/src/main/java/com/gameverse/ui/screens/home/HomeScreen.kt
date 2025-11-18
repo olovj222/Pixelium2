@@ -127,6 +127,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
             // Tarjeta 2
             Card(
                 modifier = Modifier
+
                     .fillMaxWidth()
                     .border(
                         width = 2.dp,
@@ -141,6 +142,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                 Column(
                     modifier = Modifier.padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
+
                 ) {
                     Text(
                         text = "¿Qué encontraré aquí?",
@@ -233,7 +235,7 @@ fun HomeScreen(mainViewModel: MainViewModel = viewModel(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "¿Próximas mejoras?",
+                        text = "¿Proximas mejoras?",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.primary,

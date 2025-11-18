@@ -26,7 +26,7 @@ data class MainUiState(
 
 //estado de UI en la pantalla de carrito de compra
 data class CartUiState(
-    val cartItems: List<CartProduct> = emptyList(),
+    val cartItems: List<CartProduct> = emptyList(), // <-- Esta es la clave
     val total: Double = 0.0,
     val paymentSuccess: Boolean = false
 )

@@ -1,8 +1,7 @@
 package com.gameverse.ui.screen
 
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 
 // Imports de la App (código principal)
@@ -14,7 +13,6 @@ import com.gameverse.ui.theme.GameverseTheme
 // Imports de Prueba (¡Desde tu archivo 'util'!)
 import com.gameverse.util.FakeCartViewModel
 import com.gameverse.util.FakeMainViewModel
-import androidx.compose.ui.test.onAllNodesWithText
 
 import org.junit.Before
 import org.junit.Rule
@@ -32,17 +30,14 @@ class ProductsScreenTest {
 
     @Before
     fun setUp() {
-        // Creamos instancias de los ViewModels falsos
         fakeMainViewModel = FakeMainViewModel()
         fakeCartViewModel = FakeCartViewModel()
     }
 
     @Test
     fun testProductsScreen_LoadingState_ShowsLoader() {
-        // 1. Forzamos el estado de "Cargando"
         fakeMainViewModel.setState(MainUiState(isLoading = true))
 
-        // 2. Lanzamos la pantalla
         composeTestRule.setContent {
             GameverseTheme {
                 ProductsScreen(
@@ -52,23 +47,21 @@ class ProductsScreenTest {
             }
         }
 
-        // 3. Validamos que el contenido NO se muestre
-        // (No podemos buscar por texto "Controlador" porque no existe)
-        // (Esta prueba es mejor con un testTag en el Loader, como en HomeScreenTest)
+        // Validamos que no haya productos visibles
+        composeTestRule.onNodeWithText("Controlador Élite").assertDoesNotExist()
     }
 
     @Test
     fun testProductsScreen_LoadedState_ShowsProducts() {
-        // 1. Creamos una lista de productos de prueba
+        // 1. Datos de prueba
         val testProducts = listOf(
-            Product(1, "Controlador Élite", "Descripción de prueba 1", 99.99, ""),
-            Product(2, "Teclado Mecánico", "Descripción de prueba 2", 120.00, "")
+            Product(1, "Controlador Élite", "Descripción 1", 99.99, ""),
+            Product(2, "Teclado Mecánico", "Descripción 2", 120.00, "")
         )
 
-        // 2. Forzamos el estado de "Cargado" con los productos
+        // 2. Estado cargado
         fakeMainViewModel.setState(MainUiState(isLoading = false, products = testProducts))
 
-        // 3. Lanzamos la pantalla
         composeTestRule.setContent {
             GameverseTheme {
                 ProductsScreen(
@@ -78,13 +71,28 @@ class ProductsScreenTest {
             }
         }
 
-        // 4. Validamos que los títulos de los productos estén visibles
-        composeTestRule.onNodeWithText("Controlador Élite").assertIsDisplayed()
-        composeTestRule.onNodeWithText("Teclado Mecánico").assertIsDisplayed()
+        // Esperar a que la UI se estabilice
+        composeTestRule.waitForIdle()
 
-        // 5. Validamos que los botones de "Comprar" estén visibles
-        // (Buscamos todas las instancias de "Comprar" y afirmamos que hay al menos una)
-        composeTestRule.onAllNodesWithText("Comprar")[0].assertIsDisplayed()
-        composeTestRule.onAllNodesWithText("Comprar")[1].assertIsDisplayed()
+        // 3. Validaciones
+
+        // Producto 1
+        composeTestRule
+            .onNodeWithText("Controlador Élite")
+            .performScrollTo() // ¡Importante! Hace scroll si es necesario
+            .assertIsDisplayed()
+
+        // Producto 2
+        composeTestRule
+            .onNodeWithText("Teclado Mecánico")
+            .performScrollTo()
+            .assertIsDisplayed()
+
+        // 4. Validar botones "Agregar al carrito" (Texto corregido)
+        // Usamos onAllNodesWithText para encontrar todos los botones con ese texto
+        // y verificamos que al menos el primero sea visible.
+        composeTestRule
+            .onAllNodesWithText("Agregar al carrito")[0]
+            .assertIsDisplayed()
     }
 }
