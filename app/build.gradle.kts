@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.ksp)
+    alias(libs.plugins.ksp) // Plugin para Room
 }
 
 android {
@@ -56,6 +56,9 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // Exclusiones necesarias para evitar conflictos en tests con MockK
+            excludes += "/META-INF/LICENSE.md"
+            excludes += "/META-INF/LICENSE-notice.md"
         }
     }
 
@@ -106,8 +109,12 @@ dependencies {
 
     // ============ TESTING ============
 
-    // Unit Tests
+    // Unit Tests (Local)
     testImplementation(libs.junit)
+    // --- NUEVAS DEPENDENCIAS AÑADIDAS ---
+    testImplementation(libs.mockk)              // Para crear Mocks
+    testImplementation(libs.kotest.assertions)  // Para aserciones legibles (shouldBe)
+    testImplementation(libs.kotlinx.coroutines.test) // Para probar corutinas (runTest)
 
     // Android Instrumented Tests - TODAS LAS VERSIONES 1.6.x
     androidTestImplementation("androidx.test:core:1.6.1")

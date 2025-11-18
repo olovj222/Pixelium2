@@ -39,6 +39,11 @@ androidxTestExtJunit = "1.2.1"
 androidxEspressoCore = "3.6.1"
 androidxTestOrchestrator = "1.5.0"
 
+# Mockk y Kotest
+mockk = "1.13.10"
+kotest = "5.8.0"
+coroutinesTest = "1.7.3"
+
 [libraries]
 # AndroidX Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -88,6 +93,16 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 # Testing - Compose UI Tests
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+
+# Mockk
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
+
+# Kotest
+kotest-assertions = { group = "io.kotest", name = "kotest-assertions-core", version.ref = "kotest" }
+
+# Coroutines Test
+kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
