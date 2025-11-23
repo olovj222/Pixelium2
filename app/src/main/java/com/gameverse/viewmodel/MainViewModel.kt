@@ -8,6 +8,7 @@ import com.gameverse.data.repository.AppRepository
 import com.gameverse.ui.state.MainUiState
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalCoroutinesApi::class) // Necesario para flatMapLatest
 open class MainViewModel(
@@ -33,6 +34,12 @@ open class MainViewModel(
             }
         }
 
+    init {
+        viewModelScope.launch {
+            repository.syncProductsFromApi()  // SIEMPRE sincroniza
+        }
+    }
+
     // --- Combina todos los flows en el Estado Final para la UI
     open val uiState: StateFlow<MainUiState> = combine(
         productsFlow,
@@ -46,11 +53,11 @@ open class MainViewModel(
             news = news,
             homeHighlights = highlights,
             userProfile = user,
-            isLoading = false
+            isLoading = products.isEmpty() && news.isEmpty()
         )
     }.stateIn(
         scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000L),
+        started = SharingStarted.Lazily,
         initialValue = MainUiState(isLoading = true)
     )
 

@@ -25,9 +25,8 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
 
-    private val repository: AppRepository = mockk()
+    private val repository: AppRepository = mockk(relaxed = true)
     private lateinit var viewModel: MainViewModel
-    // Usamos UnconfinedTestDispatcher para que los cambios de estado sean inmediatos cuando sea posible
     private val testDispatcher = StandardTestDispatcher()
 
     @Before
@@ -47,35 +46,33 @@ class MainViewModelTest {
         val testProducts = listOf(Product(1, "Prod 1", "Desc", 100.0, ""))
         val testNews = listOf(NewsItem(1, "News 1", "Summary", ""))
 
-        // Mocks
+        // Mockeos
         every { repository.getProducts() } returns flowOf(testProducts)
         every { repository.getNews() } returns flowOf(testNews)
         every { repository.getHomeHighlights() } returns flowOf(testNews)
         coEvery { repository.getUserById(1) } returns testUser
 
+        // IMPORTANTE: tu VM ahora llama syncProductsFromApi() en init
+        coEvery { repository.syncProductsFromApi() } returns Unit
+
         // WHEN
         viewModel = MainViewModel(repository) { 1 }
 
-        // ¡TRUCO CLAVE!
-        // Los StateFlows con 'WhileSubscribed' necesitan un colector activo para empezar a emitir.
-        // Creamos un "background job" que colecte el estado.
         val collectJob = launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect {}
         }
 
-        // Avanzamos el tiempo para permitir que los flows emitan y el combine procese
         advanceUntilIdle()
 
         // THEN
         val currentState = viewModel.uiState.value
 
-        // Verificamos propiedad por propiedad para ver cuál falla si hay error
         currentState.isLoading shouldBe false
         currentState.products shouldBe testProducts
         currentState.news shouldBe testNews
+        currentState.homeHighlights shouldBe testNews
         currentState.userProfile shouldBe testUser
 
-        // Limpieza
         collectJob.cancel()
     }
 
@@ -86,10 +83,11 @@ class MainViewModelTest {
         every { repository.getNews() } returns flowOf(emptyList())
         every { repository.getHomeHighlights() } returns flowOf(emptyList())
 
+        coEvery { repository.syncProductsFromApi() } returns Unit
+
         // WHEN
         viewModel = MainViewModel(repository) { null }
 
-        // ¡TRUCO CLAVE! Arrancamos el flujo
         val collectJob = launch(UnconfinedTestDispatcher(testScheduler)) {
             viewModel.uiState.collect {}
         }
@@ -98,7 +96,7 @@ class MainViewModelTest {
 
         // THEN
         viewModel.uiState.value.userProfile shouldBe null
-        viewModel.uiState.value.isLoading shouldBe false
+        viewModel.uiState.value.isLoading shouldBe true
 
         collectJob.cancel()
     }

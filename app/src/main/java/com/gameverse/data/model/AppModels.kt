@@ -31,7 +31,7 @@ data class User(
 @Entity(tableName = "products")
 data class Product(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Int,
     val name: String,
     val details: String,
     val price: Double,

@@ -40,6 +40,7 @@ import com.gameverse.data.model.Product
 import java.text.NumberFormat
 import java.util.Locale
 import kotlinx.coroutines.delay
+import android.util.Log
 
 @Composable
 fun LogoImage(modifier: Modifier = Modifier) {
@@ -168,7 +169,7 @@ fun NeonButton(
 
 @Composable
 fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
-    // Para dar formato en peso chileno
+    // Formateo de precio en pesos chilenos
     val clpFormatter = remember { NumberFormat.getCurrencyInstance(Locale("es", "CL")) }
 
     Card(
@@ -176,11 +177,10 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f)
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Column {
             AsyncImage(
@@ -192,9 +192,20 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
                     .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
                 contentScale = ContentScale.Crop
             )
+
+            LaunchedEffect(product.id) {
+                Log.e("DEBUG_PRODUCT_CARD", "ID:${product.id} | PRICE:${product.price}")
+            }
+
             Column(Modifier.padding(16.dp)) {
-                Text(product.name, style = MaterialTheme.typography.titleLarge, color = Color(0xFFFEFCF9))
+                Text(
+                    text = product.name,
+                    style = MaterialTheme.typography.titleLarge,
+                    color = Color(0xFFFEFCF9)
+                )
+
                 Spacer(Modifier.height(4.dp))
+
                 Text(
                     text = product.details,
                     style = MaterialTheme.typography.bodyMedium,
@@ -202,18 +213,21 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
                     color = Color(0xFFFEFCF9),
                     overflow = TextOverflow.Ellipsis
                 )
+
                 Spacer(Modifier.height(16.dp))
+
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        // acá se aplica el fomrato en pesos chilenos
                         text = clpFormatter.format(product.price),
                         style = MaterialTheme.typography.headlineSmall,
                         color = MaterialTheme.colorScheme.primary
                     )
+
                     Button(onClick = { onAddToCart(product) }) {
                         Text("Agregar al carrito")
                     }
@@ -222,6 +236,8 @@ fun ProductCard(product: Product, onAddToCart: (Product) -> Unit) {
         }
     }
 }
+
+
 
 @Composable
 fun NewsCard(newsItem: NewsItem) {

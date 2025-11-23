@@ -132,6 +132,10 @@ dependencies {
     // Test Orchestrator
     androidTestUtil("androidx.test:orchestrator:1.5.0")
 
+    // Retrofit y Gson para consumir API
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+
     // Compose Testing
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.test.manifest)

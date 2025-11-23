@@ -6,6 +6,8 @@ import com.gameverse.data.dao.UserDao
 import com.gameverse.data.model.NewsItem
 import com.gameverse.data.model.Product
 import com.gameverse.data.model.User
+import com.gameverse.data.network.RetrofitClient
+import com.gameverse.data.network.model.toProduct
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -27,6 +29,22 @@ open class AppRepository(
      * Devuelve un 'Result' para que el ViewModel sepa si funcionó o falló
      * (si el nombre de usuario ya existe).
      */
+    suspend fun syncProductsFromApi() {
+        val response = RetrofitClient.apiService.searchGames(query = "")
+
+        if (response.isSuccessful) {
+            val body = response.body()
+            val apiItems = body?.results?.items ?: emptyList()
+            val products = apiItems.map { it.toProduct() }
+
+            // Guarda los productos en Room
+            productoDAO.insertAll(products)
+        }
+    }
+
+    suspend fun countProducts(): Int = productoDAO.count()
+
+
     open suspend fun registerUser(user: User): Result<Unit> {
         return try {
             usuarioDAO.insertUser(user)

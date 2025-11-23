@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [User::class, Product::class, NewsItem::class], // 1. Lista de todas las tablas
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -42,6 +42,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "gameverse_database.db" // 5. ¡Este es el nombre de tu archivo .db!
                 )
+                    .fallbackToDestructiveMigration()
                     .addCallback(DatabaseCallback(context)) // 6. Añade el callback para precargar datos
                     .build()
                 INSTANCE = instance
