@@ -12,7 +12,10 @@ data class LoginUiState(
     val isAdmin: Boolean = false,
     val registrationSuccess: Boolean = false,
     val loggedInUserId: Int? = null,
-    val error: String? = null
+    val error: String? = null,
+    val usernameError: String? = null,
+    val passwordError: String? = null,
+    val emailError: String? = null
 )
 
 //estado de la UI para cada pantalla

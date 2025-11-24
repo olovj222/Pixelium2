@@ -109,5 +109,10 @@ open class AppRepository(
 
     // 2. Función para guardar la edición
     suspend fun updateUser(user: User) = usuarioDAO.updateUser(user)
+
+    // Necesitamos buscar solo por nombre para validar existencia
+    suspend fun getUserByUsername(username: String): User? {
+        return usuarioDAO.getUserByUsername(username)
+    }
 }
 

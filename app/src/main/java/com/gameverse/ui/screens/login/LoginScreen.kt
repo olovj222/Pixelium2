@@ -19,17 +19,15 @@ import com.gameverse.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     loginViewModel: LoginViewModel,
-
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
-    // aca se ve el estado del ViewModel
+    // Estado del ViewModel
     val uiState by loginViewModel.uiState.collectAsState()
 
-    // Estados locales para los campos de texto.
+    // Estados locales para los campos de texto
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-
 
     LaunchedEffect(uiState.loginSuccess) {
         if (uiState.loginSuccess) {
@@ -37,40 +35,47 @@ fun LoginScreen(
         }
     }
 
-    // aca se alinea el logo arriba y el formulario en el centro de la app
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 32.dp)
     ) {
 
-        // Logo alineado arriba y centrado.
+        // Logo alineado arriba
         LogoImage(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 80.dp)
         )
 
-        // Formulario centrado.
+        // Formulario centrado
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // CAMPO USUARIO con validación
             NeonTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = "Usuario"
+                label = "Usuario",
+                errorMessage = uiState.usernameError // <-- Conectado al error específico
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            // CAMPO CONTRASEÑA con validación
             NeonTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = "Contraseña",
-                keyboardType = KeyboardType.Password
+                keyboardType = KeyboardType.Password,
+                errorMessage = uiState.passwordError // <-- Conectado al error específico
             )
+
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Muestra mensaje de error si existe.
+            // Muestra mensaje de error GENÉRICO (ej: credenciales incorrectas)
             uiState.error?.let { errorMessage ->
                 Text(
                     text = errorMessage,
@@ -79,7 +84,7 @@ fun LoginScreen(
                 )
             }
 
-            // Boton de iniciar sesión
+            // Botón de iniciar sesión
             NeonButton(
                 onClick = { loginViewModel.login(username, password) },
                 text = "Iniciar Sesión",
@@ -94,7 +99,7 @@ fun LoginScreen(
                 color = MaterialTheme.colorScheme.primary,
                 textDecoration = TextDecoration.Underline,
                 modifier = Modifier.clickable(enabled = !uiState.isLoading) {
-                    onNavigateToRegister() // Llama a la función de navegación a Registro.
+                    onNavigateToRegister()
                 }
             )
         }
@@ -104,4 +109,3 @@ fun LoginScreen(
         }
     }
 }
-

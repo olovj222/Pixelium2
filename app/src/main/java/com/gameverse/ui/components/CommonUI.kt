@@ -4,6 +4,7 @@ package com.gameverse.ui.components
 
 import com.gameverse.R
 import android.os.Build
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -111,30 +112,52 @@ fun NeonTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    keyboardType: KeyboardType = KeyboardType.Text
+    keyboardType: KeyboardType = KeyboardType.Text,
+    // NUEVO PARAMETRO: Recibe el mensaje de error (puede ser null)
+    errorMessage: String? = null
 ) {
     val animatedBorderColor = rememberNeonFlicker()
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        shape = RoundedCornerShape(8.dp),
-        singleLine = true,
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = animatedBorderColor,
-            unfocusedBorderColor = animatedBorderColor.copy(alpha = 0.5f),
-            focusedLabelColor = animatedBorderColor,
-            cursorColor = animatedBorderColor
-        ),
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        visualTransformation = if (keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None,
-        modifier = Modifier.fillMaxWidth()
-            .semantics{
-                contentDescription = "Campo de $label"
-            }
+    // Envolvemos en Column para apilar el texto de error debajo del input
+    Column(modifier = Modifier.fillMaxWidth()) {
 
-    )
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            shape = RoundedCornerShape(8.dp),
+            singleLine = true,
+            // Si hay errorMessage, marcamos el estado de error visual
+            isError = errorMessage != null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = animatedBorderColor,
+                unfocusedBorderColor = animatedBorderColor.copy(alpha = 0.5f),
+                focusedLabelColor = animatedBorderColor,
+                cursorColor = animatedBorderColor,
+                // Colores específicos para cuando hay error
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorLabelColor = MaterialTheme.colorScheme.error,
+                errorCursorColor = MaterialTheme.colorScheme.error
+            ),
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            visualTransformation = if (keyboardType == KeyboardType.Password) PasswordVisualTransformation() else VisualTransformation.None,
+            modifier = Modifier
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = "Campo de $label"
+                }
+        )
+
+        // ANIMACIÓN DE VISIBILIDAD PARA EL ERROR
+        AnimatedVisibility(visible = errorMessage != null) {
+            Text(
+                text = errorMessage ?: "",
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodySmall,
+                modifier = Modifier.padding(start = 8.dp, top = 4.dp)
+            )
+        }
+    }
 }
 
 @Composable
@@ -305,4 +328,3 @@ fun FullScreenLoader() {
         )
     }
 }
-

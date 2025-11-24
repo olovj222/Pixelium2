@@ -20,16 +20,15 @@ fun RegisterScreen(
     loginViewModel: LoginViewModel,
     onRegistrationSuccess: () -> Unit
 ) {
-
     val uiState by loginViewModel.uiState.collectAsState()
-
 
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") } // <-- Nuevo campo
+    var email by remember { mutableStateOf("") }
+
     val context = LocalContext.current
 
-
+    // Efecto para manejar el éxito del registro
     LaunchedEffect(uiState.registrationSuccess) {
         if (uiState.registrationSuccess) {
             Toast.makeText(context, "¡Registro exitoso! Por favor, inicia sesión.", Toast.LENGTH_LONG).show()
@@ -37,7 +36,6 @@ fun RegisterScreen(
             onRegistrationSuccess()
         }
     }
-
 
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -53,33 +51,46 @@ fun RegisterScreen(
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
+
+            // CAMPO USUARIO con validación
             NeonTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = "Nombre de Usuario"
+                label = "Nombre de Usuario",
+                errorMessage = uiState.usernameError // <-- Conectamos el error específico
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            // CAMPO EMAIL con validación
             NeonTextField(
-                value = email, // <-- Campo de Email
+                value = email,
                 onValueChange = { email = it },
                 label = "Correo Electrónico",
-                keyboardType = KeyboardType.Email // Teclado de email
+                keyboardType = KeyboardType.Email,
+                errorMessage = uiState.emailError // <-- Conectamos el error específico
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
+            // CAMPO CONTRASEÑA con validación
             NeonTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = "Contraseña",
-                keyboardType = KeyboardType.Password
+                keyboardType = KeyboardType.Password,
+                errorMessage = uiState.passwordError // <-- Conectamos el error específico
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
+            Spacer(modifier = Modifier.height(24.dp))
 
+            // Error Genérico (Ej: Error de base de datos o red que no es de validación)
             uiState.error?.let { errorMessage ->
                 Text(
                     text = errorMessage,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
 
@@ -89,7 +100,6 @@ fun RegisterScreen(
                 enabled = !uiState.isLoading
             )
         }
-
 
         if (uiState.isLoading) {
             FullScreenLoader()
