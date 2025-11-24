@@ -26,10 +26,9 @@ open class MainViewModel(
     private val userProfileFlow: Flow<User?> = snapshotFlow { getCurrentUserId() }
         .flatMapLatest { userId ->
             if (userId != null) {
-
-                flow { emit(repository.getUserById(userId)) }
+                // Esto conecta el "cable" directo a la base de datos
+                repository.getUserFlow(userId)
             } else {
-
                 flowOf(null)
             }
         }
@@ -61,6 +60,24 @@ open class MainViewModel(
         initialValue = MainUiState(isLoading = true)
     )
 
+    fun updateUser(currentUser: User, newName: String, newEmail: String, newPass: String, newFullName: String) {
+        viewModelScope.launch {
+            try {
+                // Creamos una copia del usuario actual con los nuevos datos
+                val updatedUser = currentUser.copy(
+                    username = newName,
+                    email = newEmail,
+                    password = newPass, // En una app real, esto debería hashearse de nuevo
+                    fullName = newFullName
+                )
+                // Guardamos en BD. Al hacerlo, el userProfileFlow avisará a toda la app del cambio
+                repository.updateUser(updatedUser)
+            } catch (e: Exception) {
+                // Aquí podrías manejar errores, ej: si el username ya existe
+                e.printStackTrace()
+            }
+        }
+    }
 
 }
 

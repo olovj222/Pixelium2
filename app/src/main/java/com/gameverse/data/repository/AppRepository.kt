@@ -103,5 +103,11 @@ open class AppRepository(
     fun getLocalProducts(): Flow<List<Product>> {
         return productoDAO.getProducts()
     }
+
+    // 1. Función para escuchar cambios (conecta con el DAO nuevo)
+    fun getUserFlow(userId: Int): Flow<User?> = usuarioDAO.getUserFlow(userId)
+
+    // 2. Función para guardar la edición
+    suspend fun updateUser(user: User) = usuarioDAO.updateUser(user)
 }
 

@@ -15,7 +15,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -33,7 +32,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.Priority
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationResult
-// ViewModel de Ubicación (asumiendo que lo tienes)
+// ViewModel de Ubicación
 import com.gameverse.viewmodel.UbicacionViewModel
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -42,17 +41,24 @@ import com.gameverse.viewmodel.UbicacionViewModel
 fun ProfileScreen(
     mainViewModel: MainViewModel = viewModel(),
     ubicacionViewModel: UbicacionViewModel = viewModel(),
-
     onLogout: () -> Unit
 ) {
     val uiState by mainViewModel.uiState.collectAsState()
-
     val user = uiState.userProfile
 
+    // --- ESTADOS PARA LA EDICIÓN ---
+    var isEditing by remember { mutableStateOf(false) }
+
+    // Usamos remember(user) para que si el usuario cambia (ej: después de guardar),
+    // los campos se actualicen con la nueva info.
+    var editUsername by remember(user) { mutableStateOf(user?.username ?: "") }
+    var editEmail by remember(user) { mutableStateOf(user?.email ?: "") }
+    var editFullName by remember(user) { mutableStateOf(user?.fullName ?: "") }
+    var editPassword by remember(user) { mutableStateOf(user?.password ?: "") }
 
     var selectedImageUri by rememberSaveable { mutableStateOf<Uri?>(null) }
 
-
+    // --- LOGICA DE UBICACIÓN ---
     val contexto = LocalContext.current
     val permisoUbicacion = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
     val tienePermiso = permisoUbicacion.status is PermissionStatus.Granted
@@ -78,16 +84,13 @@ fun ProfileScreen(
         }
     }
 
-
     val lanzadorGaleria = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri ->
         selectedImageUri = uri
-
-
     }
 
-
+    // --- UI ---
     if (uiState.isLoading) {
         FullScreenLoader()
     } else if (user != null) {
@@ -97,10 +100,10 @@ fun ProfileScreen(
                 .padding(horizontal = 32.dp, vertical = 16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
+            // 1. IMAGEN DE PERFIL (Siempre visible)
             AsyncImage(
                 model = selectedImageUri ?: user.avatarUrl,
                 contentDescription = "Avatar de ${user.username}",
@@ -110,34 +113,109 @@ fun ProfileScreen(
                 contentScale = ContentScale.Crop
             )
 
-            // Botón Cambiar Foto
             Button(onClick = { lanzadorGaleria.launch("image/*") }) {
                 Text("Cambiar foto")
             }
 
-            // Nombre Completo
-            Text(
-                text = user.fullName,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
+            // 2. SECCIÓN DE DATOS (Editable vs Visualización)
+            if (isEditing) {
+                // --- MODO EDICIÓN ---
+                OutlinedTextField(
+                    value = editFullName,
+                    onValueChange = { editFullName = it },
+                    label = { Text("Nombre Completo") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            // Nombre de Usuario
-            Text(
-                text = "@${user.username}",
-                fontSize = 20.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+                OutlinedTextField(
+                    value = editUsername,
+                    onValueChange = { editUsername = it },
+                    label = { Text("Usuario (@)") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            // correo de usuario
-            Text(
-                text = user.email,
-                fontSize = 16.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
-            )
+                OutlinedTextField(
+                    value = editEmail,
+                    onValueChange = { editEmail = it },
+                    label = { Text("Correo") },
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            // ubicacion del dispositivo
+                OutlinedTextField(
+                    value = editPassword,
+                    onValueChange = { editPassword = it },
+                    label = { Text("Contraseña") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+
+                // Botones Guardar / Cancelar
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            // Llamamos a la función del ViewModel para guardar en BD
+                            mainViewModel.updateUser(
+                                currentUser = user,
+                                newName = editUsername,
+                                newEmail = editEmail,
+                                newPass = editPassword,
+                                newFullName = editFullName
+                            )
+                            isEditing = false // Volver a modo visualización
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Guardar")
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            // Cancelar: reseteamos valores y salimos
+                            editUsername = user.username
+                            editEmail = user.email
+                            editFullName = user.fullName
+                            editPassword = user.password
+                            isEditing = false
+                        },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("Cancelar")
+                    }
+                }
+
+            } else {
+                // --- MODO VISUALIZACIÓN (Solo Lectura) ---
+                Text(
+                    text = user.fullName,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+
+                Text(
+                    text = "@${user.username}",
+                    fontSize = 20.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = user.email,
+                    fontSize = 16.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f)
+                )
+
+                // Botón para entrar en modo edición
+                Button(
+                    onClick = { isEditing = true },
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    Text("Editar Perfil")
+                }
+            }
+
+            // 3. SECCIÓN UBICACIÓN
             Divider(modifier = Modifier.padding(vertical = 16.dp))
 
             if (!tienePermiso) {
@@ -164,7 +242,7 @@ fun ProfileScreen(
                 )
             }
 
-            // boton cerrar sesion
+            // 4. BOTÓN CERRAR SESIÓN
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 onClick = onLogout,
@@ -177,7 +255,6 @@ fun ProfileScreen(
             }
         }
     } else {
-
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
             Text("No se pudo cargar el perfil del usuario.")
         }
