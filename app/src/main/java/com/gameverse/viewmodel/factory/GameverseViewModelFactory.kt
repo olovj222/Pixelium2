@@ -3,6 +3,7 @@ package com.gameverse.viewmodel.factory
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.gameverse.data.repository.AppRepository
+import com.gameverse.viewmodel.AdminViewModel
 import com.gameverse.viewmodel.CartViewModel
 import com.gameverse.viewmodel.LoginViewModel
 import com.gameverse.viewmodel.MainViewModel
@@ -29,6 +30,11 @@ class GameverseViewModelFactory(
         if (modelClass.isAssignableFrom(CartViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return CartViewModel() as T
+        }
+
+        if (modelClass.isAssignableFrom(AdminViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return AdminViewModel(repository) as T
         }
         // Si se pide un ViewModel desconocido, lanza una excepción.
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.gameverse.data.model.Product
 import kotlinx.coroutines.flow.Flow
 
@@ -31,4 +32,7 @@ interface ProductDao {
      */
     @Query("SELECT COUNT(*) FROM products")
     suspend fun count(): Int
+
+    @Update
+    suspend fun updateProduct(product: Product)
 }

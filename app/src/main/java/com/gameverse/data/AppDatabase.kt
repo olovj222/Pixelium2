@@ -64,6 +64,7 @@ private class DatabaseCallback(private val context: Context) : RoomDatabase.Call
             val database = AppDatabase.getDatabase(context)
             prePopulateProducts(database.productoDAO())
             prePopulateNews(database.newsDAO())
+            prePopulateUsers(database.usuarioDAO())
         }
     }
 
@@ -86,5 +87,22 @@ private class DatabaseCallback(private val context: Context) : RoomDatabase.Call
             NewsItem(id = 3, title = "Resumen del Nintendo Direct", summary = "Anunciado un nuevo Zelda 2D y el regreso de un clásico de culto, se hara realidad la integracion de Mario Informatico en Smash bros?, quedate atento a las proximas noticias!...", imageUrl = "https://i.postimg.cc/Dz8Kw69b/500-333.jpg")
         )
         dao.insertAll(news)
+    }
+
+    suspend fun prePopulateUsers(dao: UserDao) {
+        val adminUser = User(
+            username = "admin",
+            password = "admin", // En una app real, esto debería estar hasheado
+            fullName = "Administrador del Sistema",
+            email = "admin@gameverse.com",
+            memberSince = "Inicio de los tiempos",
+            avatarUrl = "https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff"
+        )
+        // Usamos try-catch por si acaso ya existe (aunque onCreate solo corre una vez)
+        try {
+            dao.insertUser(adminUser)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }

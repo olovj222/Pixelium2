@@ -93,5 +93,15 @@ open class AppRepository(
     open fun getHomeHighlights(): Flow<List<NewsItem>> {
         return newsDAO.getNews()
     }
+
+    suspend fun updateProduct(product: Product) {
+        // Necesitas asegurarte de tener @Update en tu ProductoDAO
+        // Si no lo tienes, agrégalo en el paso siguiente.
+        productoDAO.updateProduct(product)
+    }
+
+    fun getLocalProducts(): Flow<List<Product>> {
+        return productoDAO.getProducts()
+    }
 }
 

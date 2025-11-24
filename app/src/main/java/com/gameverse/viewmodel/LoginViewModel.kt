@@ -26,13 +26,16 @@ open class LoginViewModel(
             _uiState.update { it.copy(isLoading = true, error = null) }
             delay(2500L)
             // Llama al repositorio (Room)
+
             val loginResult: User? = repository.login(user, pass)
             if (loginResult != null) {
+                val isAdminUser = loginResult.username == "admin"
                 // Guardamos el ID del usuario en el estado
                 _uiState.update {
                     it.copy(
                         isLoading = false,
                         loginSuccess = true,
+                        isAdmin = isAdminUser,
                         loggedInUserId = loginResult.id // GUARDAMOS EL ID
                     )
                 }

@@ -9,6 +9,7 @@ import com.gameverse.data.model.User // <-- Importa el nuevo 'User' de la base d
 data class LoginUiState(
     val isLoading: Boolean = false,
     val loginSuccess: Boolean = false,
+    val isAdmin: Boolean = false,
     val registrationSuccess: Boolean = false,
     val loggedInUserId: Int? = null,
     val error: String? = null
