@@ -2,7 +2,6 @@ package com.gameverse.viewmodel
 
 import com.gameverse.data.model.User
 import com.gameverse.data.repository.AppRepository
-import com.gameverse.ui.state.LoginUiState
 import io.kotest.matchers.shouldBe
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -20,16 +19,15 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class LoginViewModelTest {
 
-    // 1. Mock del Repositorio
-    // 'relaxed = true' permite que responda valores por defecto si no definimos nada
     private val repository: AppRepository = mockk(relaxed = true)
 
     private lateinit var viewModel: LoginViewModel
     private val testDispatcher = StandardTestDispatcher()
 
+    private val mockUser = User(1, "testUser", "password123", "Test User", "test@test.com", "2023", "")
+
     @Before
     fun setUp() {
-        // Configurar Coroutines para tests
         Dispatchers.setMain(testDispatcher)
         viewModel = LoginViewModel(repository)
     }
@@ -39,45 +37,86 @@ class LoginViewModelTest {
         Dispatchers.resetMain()
     }
 
+    // --- TEST DE ÉXITO ---
+
     @Test
     fun `login success should update state to success`() = runTest {
-        // GIVEN (Dado un escenario)
-        val user = "testUser"
-        val pass = "password123"
-        val mockUser = User(1, user, pass, "Test User", "test@test.com", "2023", "")
-
-        // Enseñamos al mock qué responder:
-        // "Cuando llamen a login con cualquier string, devuelve el mockUser"
-        coEvery { repository.login(any(), any()) } returns mockUser
-
-        // WHEN (Cuando ocurre la acción)
-        viewModel.login(user, pass)
-
-        // Avanzamos el tiempo para que las corutinas se ejecuten
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        // THEN (Entonces verificamos el resultado)
-        // Usamos Kotest para una aserción legible
-        viewModel.uiState.value.loginSuccess shouldBe true
-        viewModel.uiState.value.loggedInUserId shouldBe 1
-        viewModel.uiState.value.isLoading shouldBe false
-
-        // Verificamos que el repositorio fue llamado
-        coVerify { repository.login(user, pass) }
-    }
-
-    @Test
-    fun `login failure should update state with error`() = runTest {
         // GIVEN
-        // El repositorio devuelve null (login fallido)
-        coEvery { repository.login(any(), any()) } returns null
+        coEvery { repository.getUserByUsername(mockUser.username) } returns mockUser
+        // La lógica del login ya no llama a repository.login(), sino a getUserByUsername()
 
         // WHEN
-        viewModel.login("wrongUser", "wrongPass")
+        viewModel.login(mockUser.username, mockUser.password)
+
+        // Avanzamos el tiempo para que el delay(2000L) y la lógica se ejecuten
         testDispatcher.scheduler.advanceUntilIdle()
 
         // THEN
+        viewModel.uiState.value.loginSuccess shouldBe true
+        viewModel.uiState.value.loggedInUserId shouldBe 1
+        viewModel.uiState.value.isLoading shouldBe false
+        viewModel.uiState.value.usernameError shouldBe null // Sin errores de campo
+        viewModel.uiState.value.passwordError shouldBe null // Sin errores de campo
+
+        // Verificamos que el repositorio fue llamado correctamente
+        coVerify { repository.getUserByUsername(mockUser.username) }
+    }
+
+    // --- TESTS DE FALLO (Credenciales) ---
+
+    @Test
+    fun `login failure when user does not exist should set usernameError`() = runTest {
+        // GIVEN
+        // Simulamos que getUserByUsername devuelve null (Usuario no encontrado)
+        coEvery { repository.getUserByUsername(any()) } returns null
+
+        // WHEN
+        viewModel.login("nonExistentUser", "anyPass")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // THEN: Debería fallar por usuario no registrado
         viewModel.uiState.value.loginSuccess shouldBe false
-        viewModel.uiState.value.error shouldBe "Usuario o contraseña incorrectos"
+        viewModel.uiState.value.isLoading shouldBe false
+        viewModel.uiState.value.usernameError shouldBe "Usuario no registrado" // ¡Nueva aserción!
+        viewModel.uiState.value.passwordError shouldBe null
+        viewModel.uiState.value.error shouldBe null
+    }
+
+    @Test
+    fun `login failure when wrong password should set passwordError`() = runTest {
+        // GIVEN
+        // Simulamos que el usuario existe, pero tiene una contraseña diferente
+        coEvery { repository.getUserByUsername(mockUser.username) } returns mockUser
+
+        // WHEN
+        viewModel.login(mockUser.username, "wrongPassword")
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // THEN: Debería fallar por contraseña incorrecta
+        viewModel.uiState.value.loginSuccess shouldBe false
+        viewModel.uiState.value.isLoading shouldBe false
+        viewModel.uiState.value.usernameError shouldBe null
+        viewModel.uiState.value.passwordError shouldBe "Contraseña incorrecta" // ¡Nueva aserción!
+        viewModel.uiState.value.error shouldBe null
+    }
+
+    // --- TEST DE FALLO (Campos Vacíos) ---
+
+    @Test
+    fun `login failure when fields are empty should set both username and password errors`() = runTest {
+        // GIVEN: No necesitamos mockear el repositorio, el error ocurre antes.
+
+        // WHEN
+        viewModel.login("", "") // Campos vacíos
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        // THEN: Debería fallar por campos vacíos
+        viewModel.uiState.value.loginSuccess shouldBe false
+        viewModel.uiState.value.isLoading shouldBe false
+        viewModel.uiState.value.usernameError shouldBe "Debes ingresar tu usuario"
+        viewModel.uiState.value.passwordError shouldBe "Debes ingresar tu contraseña"
+
+        // Verificamos que el repositorio NO fue llamado, ya que falló en la validación local.
+        coVerify(exactly = 0) { repository.getUserByUsername(any()) }
     }
 }

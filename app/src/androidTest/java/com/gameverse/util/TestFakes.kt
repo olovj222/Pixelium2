@@ -33,12 +33,15 @@ class DummyUsuarioDAO : UserDao {
     override suspend fun getUserByUsername(username: String): User? = null
     override suspend fun login(username: String, password: String): User? = null
     override suspend fun getUserById(userId: Int): User? = null
+    override suspend fun updateUser(user: User) {}
+    override fun getUserFlow(userId: Int): Flow<User?> = flowOf(null)
 }
 
 class DummyProductoDAO : ProductDao {
     override suspend fun insertAll(products: List<Product>) {}
     override fun getProducts(): Flow<List<Product>> = flowOf(emptyList())
     override suspend fun count(): Int = 0
+    override suspend fun updateProduct(product: Product) {}
 }
 
 class DummyNewsDAO : NewsDao {
